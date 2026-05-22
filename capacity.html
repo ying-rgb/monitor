@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>能力监控 - 短信平台监控中心</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 左侧导航 -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h1>📊 监控中心</h1>
+        <p>短信平台</p>
+      </div>
+      <div class="nav-tabs">
+        <a href="index.html" class="nav-tab">
+          <span class="nav-tab-icon">📈</span> 监控大屏
+        </a>
+        <a href="business.html" class="nav-tab">
+          <span class="nav-tab-icon">💼</span> 业务监控
+        </a>
+        <a href="capacity.html" class="nav-tab active">
+          <span class="nav-tab-icon">⚡</span> 能力监控
+        </a>
+        <a href="logs.html" class="nav-tab">
+          <span class="nav-tab-icon">📝</span> 日志监控
+        </a>
+        <a href="alerts.html" class="nav-tab">
+          <span class="nav-tab-icon">🚨</span> 告警监控
+        </a>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <div class="page-header">
+        <h2>能力监控</h2>
+        <p class="page-subtitle">监控通道能力使用情况</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">总能力</h3>
+          </div>
+          <div class="card-body">
+            <div class="gauge-container">
+              <div class="gauge-value">85%</div>
+              <div class="gauge-label">已使用</div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 85%"></div>
+            </div>
+            <div class="progress-info">
+              <span>已用: 170,000条/秒</span>
+              <span>总量: 200,000条/秒</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">通道A</h3>
+          </div>
+          <div class="card-body">
+            <div class="gauge-container">
+              <div class="gauge-value" style="color: #4CAF50">72%</div>
+              <div class="gauge-label">已使用</div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 72%; background: #4CAF50"></div>
+            </div>
+            <div class="progress-info">
+              <span>已用: 36,000条/秒</span>
+              <span>总量: 50,000条/秒</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">通道B</h3>
+          </div>
+          <div class="card-body">
+            <div class="gauge-container">
+              <div class="gauge-value" style="color: #FF9800">88%</div>
+              <div class="gauge-label">已使用</div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 88%; background: #FF9800"></div>
+            </div>
+            <div class="progress-info">
+              <span>已用: 44,000条/秒</span>
+              <span>总量: 50,000条/秒</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">能力使用趋势</h3>
+          </div>
+          <div class="chart-container">
+            <div class="chart-placeholder">📈 能力使用趋势图表</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">通道能力排行</h3>
+          </div>
+          <div class="card-body">
+            <div class="ranking-list">
+              <div class="ranking-item">
+                <span class="ranking-num">1</span>
+                <span class="ranking-name">通道A</span>
+                <span class="ranking-value">50,000</span>
+              </div>
+              <div class="ranking-item">
+                <span class="ranking-num">2</span>
+                <span class="ranking-name">通道B</span>
+                <span class="ranking-value">50,000</span>
+              </div>
+              <div class="ranking-item">
+                <span class="ranking-num">3</span>
+                <span class="ranking-name">通道C</span>
+                <span class="ranking-value">40,000</span>
+              </div>
+              <div class="ranking-item">
+                <span class="ranking-num">4</span>
+                <span class="ranking-name">通道D</span>
+                <span class="ranking-value">30,000</span>
+              </div>
+              <div class="ranking-item">
+                <span class="ranking-num">5</span>
+                <span class="ranking-name">通道E</span>
+                <span class="ranking-value">30,000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

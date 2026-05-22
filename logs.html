@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日志监控 - 短信平台监控中心</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 左侧导航 -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h1>📊 监控中心</h1>
+        <p>短信平台</p>
+      </div>
+      <div class="nav-tabs">
+        <a href="index.html" class="nav-tab">
+          <span class="nav-tab-icon">📈</span> 监控大屏
+        </a>
+        <a href="business.html" class="nav-tab">
+          <span class="nav-tab-icon">💼</span> 业务监控
+        </a>
+        <a href="capacity.html" class="nav-tab">
+          <span class="nav-tab-icon">⚡</span> 能力监控
+        </a>
+     
+        <a href="logs.html" class="nav-tab active">
+          <span class="nav-tab-icon">📝</span> 日志监控
+        </a>
+        <a href="alerts.html" class="nav-tab">
+          <span class="nav-tab-icon">🚨</span> 告警监控
+        </a>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <div class="page-header">
+        <h2>日志监控</h2>
+        <p class="page-subtitle">实时查看系统日志</p>
+      </div>
+
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="search-bar">
+          <div class="search-item">
+            <select class="search-select">
+              <option>全部级别</option>
+              <option>INFO</option>
+              <option>WARN</option>
+              <option>ERROR</option>
+              <option>DEBUG</option>
+            </select>
+          </div>
+          <div class="search-item">
+            <input type="text" class="search-input" placeholder="搜索日志内容">
+          </div>
+          <div class="search-actions">
+            <button class="btn btn-primary">搜索</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">实时日志</h3>
+        </div>
+        <div class="log-container">
+          <div class="log-item info">
+            <span class="log-time">10:25:34</span>
+            <span class="log-level">INFO</span>
+            <span class="log-message">[通道A] 消息发送成功, ID: MSG202401010001</span>
+          </div>
+          <div class="log-item warn">
+            <span class="log-time">10:25:33</span>
+            <span class="log-level">WARN</span>
+            <span class="log-message">[通道B] 队列积压超过500, 当前积压: 856</span>
+          </div>
+          <div class="log-item info">
+            <span class="log-time">10:25:32</span>
+            <span class="log-level">INFO</span>
+            <span class="log-message">[客户A] 连接建立成功, IP: 192.168.1.100</span>
+          </div>
+          <div class="log-item error">
+            <span class="log-time">10:25:31</span>
+            <span class="log-level">ERROR</span>
+            <span class="log-message">[通道C] 连接超时, 正在尝试重连...</span>
+          </div>
+          <div class="log-item info">
+            <span class="log-time">10:25:30</span>
+            <span class="log-level">INFO</span>
+            <span class="log-message">[系统] 心跳检测完成, 所有通道正常</span>
+          </div>
+          <div class="log-item debug">
+            <span class="log-time">10:25:29</span>
+            <span class="log-level">DEBUG</span>
+            <span class="log-message">[通道A] 消息处理耗时: 23ms</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">日志统计</h3>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">125,847</div>
+            <div class="stat-label">今日日志数</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">32</div>
+            <div class="stat-label">ERROR</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">156</div>
+            <div class="stat-label">WARN</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">125,659</div>
+            <div class="stat-label">INFO</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
