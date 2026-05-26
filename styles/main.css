@@ -472,6 +472,73 @@ body {
 .long-link-content {
   padding: 15px 20px;
 }
+/* 
+.long-link-search {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  padding: 12px 15px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.long-link-content .search-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.long-link-content .search-input {
+  padding: 8px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  min-width: 160px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.long-link-content .search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.long-link-content .search-input::placeholder {
+  color: #94a3b8;
+}
+
+.long-link-content .btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.long-link-content .btn-primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.long-link-content .btn-primary:hover {
+  background: #2563eb;
+}
+
+.long-link-content .btn-default {
+  background: white;
+  color: var(--text-primary);
+  border: 1px solid #e2e8f0;
+}
+
+.long-link-content .btn-default:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
 
 .sub-tab-container {
   display: flex;

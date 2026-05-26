@@ -233,8 +233,8 @@
     const peripheralInterfaces = [
       {
         id: 1,
-        name: '用户服务查询',
-        url: 'http://user-service/api/v1/query',
+        name: ' 携号转网同步',
+        url: 'http://number-transfer/api/v1/transfer',
         callTime: '2026-05-21',
         callCount: 158642,
         successCount: 156289,
@@ -247,7 +247,7 @@
       },
       {
         id: 2,
-        name: '通道状态同步',
+        name: '通道同步',
         url: 'http://channel-sync/api/v1/status',
         callTime: '2026-05-21',
         callCount: 89456,
@@ -258,10 +258,23 @@
           { code: 'W002', count: 56, type: 'warning' }
         ]
       },
-      {
+       {
         id: 3,
-        name: '计费中心',
-        url: 'http://billing/api/v2/charge',
+        name: '客户信息同步',
+        url: 'http://customer-info/api/v1/info',
+        callTime: '2026-05-21',
+        callCount: 89456,
+        successCount: 89102,
+        currentConcurrency: 45,
+        errorCodes: [
+          { code: 'E003', count: 298, type: 'error' },
+          { code: 'W002', count: 56, type: 'warning' }
+        ]
+      },
+      {
+        id: 4,
+        name: '话单生成',
+        url: 'http://billing/api/v2/bill',
         callTime: '2026-05-20',
         callCount: 67234,
         successCount: 66890,

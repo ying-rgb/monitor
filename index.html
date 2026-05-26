@@ -55,7 +55,7 @@
           </div>
           <div class="mini-cards-grid">
             <div class="mini-card">
-              <div class="mini-card-title">发送QPS</div>
+              <div class="mini-card-title">发送并发</div>
               <div class="mini-card-content">
                 <div class="mini-item">
                   <span class="mini-badge client">客户</span>
@@ -107,7 +107,7 @@
               </div>
             </div>
             <div class="mini-card" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
-              <div class="mini-card-title">回执QPS</div>
+              <div class="mini-card-title">回执并发</div>
               <div class="mini-card-content">
                 <div class="mini-item">
                   <span class="mini-badge client">客户</span>
@@ -125,7 +125,7 @@
         <div class="charts-row">
           <div class="card chart-card">
             <div class="card-header">
-              <h3 class="card-title">QPS趋势</h3>
+              <h3 class="card-title">并发趋势</h3>
               <div style="display: flex; gap: 15px; align-items: center;">
                 <div style="display: flex; gap: 5px;">
                   <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchChartType('send')">发送</button>
@@ -164,10 +164,10 @@
             <h3 class="card-title"><i class="fas fa-chart-pie"></i> 错误码分布监控</h3>
             <div class="tab-switch" style="padding: 3px; gap: 5px;">
               <button class="tab-btn active" id="errorClientTab" onclick="switchErrorRole('client')" style="padding: 6px 15px; font-size: 12px;">
-                <i class="fas fa-user"></i> 客户视角
+                <i class="fas fa-user"></i> 客户侧
               </button>
               <button class="tab-btn" id="errorChannelTab" onclick="switchErrorRole('channel')" style="padding: 6px 15px; font-size: 12px;">
-                <i class="fas fa-network-wired"></i> 通道视角
+                <i class="fas fa-network-wired"></i> 通道侧
               </button>
             </div>
              <div style="display: flex; gap: 5px;">
@@ -179,7 +179,8 @@
           </div>
           <div style="padding: 20px;">
             <div class="grid-3" id="errorCodeCharts">
-              <div class="error-code-card">
+              <!-- 客户侧协议：HTTP、SGIP、CMPP -->
+              <div class="error-code-card" id="error-http" style="display: block;">
                 <div class="error-code-header">
                   <h4><i class="fas fa-code-branch"></i> HTTP 协议 <span class="badge">错误码饼图</span></h4>
                 </div>
@@ -189,7 +190,7 @@
                   <span><i class="fas fa-chart-line"></i> 高频: <span id="高频-http">-</span></span>
                 </div>
               </div>
-              <div class="error-code-card">
+              <div class="error-code-card" id="error-sgip" style="display: block;">
                 <div class="error-code-header">
                   <h4><i class="fas fa-code-branch"></i> SGIP 协议 <span class="badge">错误码饼图</span></h4>
                 </div>
@@ -199,7 +200,7 @@
                   <span><i class="fas fa-chart-line"></i> 高频: <span id="高频-sgip">-</span></span>
                 </div>
               </div>
-              <div class="error-code-card">
+              <div class="error-code-card" id="error-cmpp" style="display: block;">
                 <div class="error-code-header">
                   <h4><i class="fas fa-code-branch"></i> CMPP 协议 <span class="badge">错误码饼图</span></h4>
                 </div>
@@ -209,6 +210,17 @@
                   <span><i class="fas fa-chart-line"></i> 高频: <span id="高频-cmpp">-</span></span>
                 </div>
               </div>
+              <!-- 通道侧协议：SGIP、CMPP、SMGP -->
+              <div class="error-code-card" id="error-smgp" style="display: none;">
+                <div class="error-code-header">
+                  <h4><i class="fas fa-code-branch"></i> SMGP 协议 <span class="badge">错误码饼图</span></h4>
+                </div>
+                <div id="chart-smgp" class="error-chart-box"></div>
+                <div class="error-stats" id="stats-smgp">
+                  <span><i class="fas fa-chart-bar"></i> 总次数: <span id="total-smgp">0</span></span>
+                  <span><i class="fas fa-chart-line"></i> 高频: <span id="高频-smgp">-</span></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -216,13 +228,13 @@
         <!-- 长链接监控 -->
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-link"></i> 长链接监控</h3>
+            <h3 class="card-title"><i class="fas fa-link"></i> 链接监控</h3>
             <div class="long-link-tabs">
               <button class="tab-btn active" id="longlink-customer-tab" onclick="switchLongLinkView('customer')">
-                <i class="fas fa-users"></i> 客户长链接
+                <i class="fas fa-users"></i> 客户链接
               </button>
               <button class="tab-btn" id="longlink-channel-tab" onclick="switchLongLinkView('channel')">
-                <i class="fas fa-exchange-alt"></i> 通道长链接
+                <i class="fas fa-exchange-alt"></i> 通道链接
               </button>
             </div>
           </div>
@@ -235,6 +247,35 @@
               <button class="sub-tab-btn active" data-sub-channel="channel-dim" onclick="switchChannelDim('channel-dim')">通道维度</button>
               <button class="sub-tab-btn" data-sub-channel="node-dim" onclick="switchChannelDim('node-dim')">节点维度</button>
             </div>
+            
+            <!-- 客户链接搜索区域 -->
+            <div class="search-bar" id="customer-search-bar" style="margin-bottom: 15px;">
+              <div class="search-item">
+                <input type="text" class="search-input" placeholder="按客户搜索...">
+              </div>
+              <div class="search-item">
+                <input type="text" class="search-input" placeholder="按账号搜索...">
+              </div>
+              <div class="search-item">
+                <button class="btn btn-primary">搜索</button>
+                <button class="btn btn-default">重置</button>
+              </div>
+            </div>
+            
+            <!-- 通道链接搜索区域 -->
+            <div class="search-bar" id="channel-search-bar" style="margin-bottom: 15px; display: none;">
+              <div class="search-item">
+                <input type="text" class="search-input" placeholder="按通道商搜索...">
+              </div>
+              <div class="search-item">
+                <input type="text" class="search-input" placeholder="按通道账号搜索...">
+              </div>
+              <div class="search-item">
+                <button class="btn btn-primary">搜索</button>
+                <button class="btn btn-default">重置</button>
+              </div>
+            </div>
+        
             <div id="longlink-dynamic-content"></div>
           </div>
         </div>
@@ -280,21 +321,54 @@
             </div>
             <button class="btn btn-primary" onclick="filterCustomerData()">查询</button>
           </div>
+          
+        
+      
+        <!-- 发送业务量时间分布图 -->
+          <div style="padding: 20px; border-top: 1px solid #e2e8f0; margin-top: 10px;">
+            <div class="card-header" style="padding: 0 0 15px 0;">
+              <h3 class="card-title"><i class="fas fa-chart-area"></i> 业务量分布</h3>
+                    <!-- 时间筛选区域 -->
+            <div class="search-bar1" >
+            <div class="search-item1">
+              <label style="font-size: 13px; margin-right: 8px;">时间范围:</label>
+              <select class="search-select" id="sendTimeRange" onchange="updateSendVolumeChart()">
+                <option value="1h">近1小时</option>
+                <option value="6h">近6小时</option>
+                <option value="24h">近24小时</option>
+                <option value="custom">按日期选择</option>
+              </select>
+            </div>
+            <div class="search-item" id="datePickerContainer" style="display: none;">
+              <input type="date" id="sendDatePicker" style="padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px;" onchange="updateSendVolumeChart()">
+            </div>
+          </div>
+          
+            </div>
+            <div class="chart-container" style="width: 1400px;height: 300px;">
+              <div id="sendVolumeChart" style="width: 1400px; height: 300px;"></div>
+            </div>
+            <div class="error-stats" style="padding-top: 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 30px;">
+              <span><i class="fas fa-paper-plane"></i> 发送量: <span id="totalSendVolume" style="font-weight: bold; color: #3b82f6; font-size: 18px;">0</span></span>
+              <span><i class="fas fa-check-circle"></i> 成功量: <span id="totalSuccessVolume" style="font-weight: bold; color: #22c55e; font-size: 18px;">0</span></span>
+              <span><i class="fas fa-percentage"></i> 成功率: <span id="successRate" style="font-weight: bold; color: #f59e0b; font-size: 18px;">0%</span></span>
+            </div>
+          </div>
         </div>
 
-        <!-- 发送账号QPS分布和错误码分布 -->
+        <!-- 发送账号并发分布和错误码分布 -->
         <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-          <!-- 发送账号QPS分布 -->
+          <!-- 发送账号并发分布 -->
           <div class="card" style="flex: 1;">
             <div class="card-header">
-              <h3 class="card-title"><i class="fas fa-chart-pie"></i> 发送账号QPS分布</h3>
+              <h3 class="card-title"><i class="fas fa-chart-pie"></i> 发送账号并发分布</h3>
               <span class="realtime-badge">🟢 实时</span>
             </div>
             <div class="chart-container" style="width: 640px; height: 340px;">
               <div id="accountQpsPieChart" style="width: 640px; height: 340px;"></div>
             </div>
             <div class="error-stats" style="padding: 15px; border-top: 1px solid #e2e8f0;">
-              <span><i class="fas fa-chart-bar"></i> 总QPS: <span id="totalAccountQps" style="font-weight: bold; color: #3b82f6; font-size: 18px;">0</span></span>
+              <span><i class="fas fa-chart-bar"></i> 总并发: <span id="totalAccountQps" style="font-weight: bold; color: #3b82f6; font-size: 18px;">0</span></span>
             </div>
           </div>
 
@@ -338,12 +412,12 @@
           </div>
         </div>
 
-        <!-- 发送QPS趋势和回执QPS趋势 -->
+        <!-- 发送并发趋势和回执并发趋势 -->
         <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-          <!-- 发送QPS趋势 -->
+          <!-- 发送并发趋势 -->
           <div class="card" style="flex: 1;">
             <div class="card-header">
-              <h3 class="card-title"><i class="fas fa-chart-line"></i> 发送QPS趋势</h3>
+              <h3 class="card-title"><i class="fas fa-chart-line"></i> 发送并发趋势</h3>
               <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <select class="search-select" id="sendQpsViewType" style="min-width: 100px;" onchange="updateSendQpsChart()">
                   <option value="top5">发送量前5</option>
@@ -365,10 +439,10 @@
             </div>
           </div>
 
-          <!-- 回执QPS趋势 -->
+          <!-- 回执并发趋势 -->
           <div class="card" style="flex: 1;">
             <div class="card-header">
-              <h3 class="card-title"><i class="fas fa-chart-line"></i> 回执QPS趋势</h3>
+              <h3 class="card-title"><i class="fas fa-chart-line"></i> 回执并发趋势</h3>
               <div style="display: flex; gap: 5px; margin-left: auto;">
                 <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchReceiptQpsTimeRange('5m')">5分钟</button>
                 <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchReceiptQpsTimeRange('1h')">1小时</button>
@@ -463,12 +537,12 @@
           </div>
         </div>
 
-        <!-- 通道账号QPS分布和错误码分布 -->
+        <!-- 通道账号并发分布和错误码分布 -->
         <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-          <!-- 通道账号QPS分布 -->
+          <!-- 通道账号并发分布 -->
           <div class="card" style="flex: 1;">
             <div class="card-header">
-              <h3 class="card-title"><i class="fas fa-chart-pie"></i> 通道账号QPS分布</h3>
+              <h3 class="card-title"><i class="fas fa-chart-pie"></i> 通道账号并发分布</h3>
               <span class="realtime-badge">🟢 实时</span>
             </div>
             <div class="chart-container" style="width: 640px; height: 340px;">
@@ -518,12 +592,12 @@
           </div>
         </div>
 
-        <!-- 发送QPS趋势和回执QPS趋势 -->
+        <!-- 发送并发趋势和回执并发趋势 -->
         <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-          <!-- 发送QPS趋势 -->
+          <!-- 发送并发趋势 -->
           <div class="card" style="flex: 1;">
             <div class="card-header">
-              <h3 class="card-title"><i class="fas fa-chart-line"></i> 发送QPS趋势</h3>
+              <h3 class="card-title"><i class="fas fa-chart-line"></i> 发送并发趋势</h3>
               <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <select class="search-select" id="channelSendQpsViewType" style="min-width: 100px;" onchange="updateChannelSendQpsChart()">
                   <option value="top5">发送量前5</option>
@@ -545,10 +619,10 @@
             </div>
           </div>
 
-          <!-- 回执QPS趋势 -->
+          <!-- 回执并发趋势 -->
           <div class="card" style="flex: 1;">
             <div class="card-header">
-              <h3 class="card-title"><i class="fas fa-chart-line"></i> 回执QPS趋势</h3>
+              <h3 class="card-title"><i class="fas fa-chart-line"></i> 回执并发趋势</h3>
               <div style="display: flex; gap: 5px; margin-left: auto;">
                 <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelReceiptQpsTimeRange('5m')">5分钟</button>
                 <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelReceiptQpsTimeRange('1h')">1小时</button>
@@ -586,7 +660,7 @@
   <div class="modal-overlay" id="drillModal" style="display: none;">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="modal-title">下钻详情</h3>
+        <h3 class="modal-title">链接详情</h3>
         <button class="modal-close" onclick="closeDrillModal()">
           <i class="fas fa-times"></i>
         </button>

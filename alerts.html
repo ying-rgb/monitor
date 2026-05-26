@@ -62,7 +62,7 @@
           <div class="stat-icon warning"><i class="fas fa-exclamation-circle"></i></div>
           <div class="stat-content">
             <div class="stat-count" id="warningCount">3</div>
-            <div class="stat-label">警告告警</div>
+            <div class="stat-label">一般告警</div>
           </div>
           <div class="stat-trend down"><i class="fas fa-arrow-down"></i> -5</div>
         </div>
@@ -70,7 +70,7 @@
           <div class="stat-icon info"><i class="fas fa-info-circle"></i></div>
           <div class="stat-content">
             <div class="stat-count" id="infoCount">2</div>
-            <div class="stat-label">信息告警</div>
+            <div class="stat-label">提示告警</div>
           </div>
           <div class="stat-trend up"><i class="fas fa-arrow-up"></i> +3</div>
         </div>
@@ -82,8 +82,8 @@
             <select class="search-select" id="levelFilter">
               <option value="">全部级别</option>
               <option value="critical">严重</option>
-              <option value="warning">警告</option>
-              <option value="info">信息</option>
+              <option value="warning">一般</option>
+              <option value="info">提示</option>
             </select>
           </div>
           <div class="search-item">
@@ -114,8 +114,8 @@
           <div class="card-actions">
             <button class="btn btn-default" onclick="showAllAlerts()">全部</button>
             <button class="btn btn-danger" onclick="filterByLevel('critical')">严重</button>
-            <button class="btn btn-warning" onclick="filterByLevel('warning')">警告</button>
-            <button class="btn btn-info" onclick="filterByLevel('info')">信息</button>
+            <button class="btn btn-warning" onclick="filterByLevel('warning')">一般</button>
+            <button class="btn btn-info" onclick="filterByLevel('info')">提示</button>
           </div>
         </div>
         <div class="table-container">
@@ -741,7 +741,7 @@
     ];
 
     function getLevelText(level) {
-      const map = { critical: '严重', warning: '警告', info: '信息' };
+      const map = { critical: '严重', warning: '一般', info: '提示' };
       return map[level] || level;
     }
 

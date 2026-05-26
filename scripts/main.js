@@ -294,15 +294,6 @@ const errorDB = {
     }
   },
   channel: {
-    http: {
-      "400 (错误请求)": 89,
-      "401 (未授权)": 45,
-      "403 (禁止)": 23,
-      "404 (不存在)": 156,
-      "500 (服务器错误)": 67,
-      "502 (网关错误)": 34,
-      "503 (服务不可用)": 18
-    },
     sgip: {
       "2001 (连接失败)": 92,
       "2002 (鉴权失败)": 67,
@@ -318,6 +309,15 @@ const errorDB = {
       "9 (路由错误)": 77,
       "11 (目标拦截)": 34,
       "13 (内容敏感)": 18
+    },
+    smgp: {
+      "1 (非法消息)": 67,
+      "2 (校验失败)": 89,
+      "3 (用户未注册)": 123,
+      "4 (消息长度错)": 45,
+      "5 (权限不足)": 23,
+      "6 (超时)": 156,
+      "7 (系统繁忙)": 78
     }
   }
 };
@@ -325,7 +325,7 @@ const errorDB = {
 let currentErrorRole = 'client';
 const errorChartInstances = {};
 const clientProtocols = ['http', 'sgip', 'cmpp'];
-const channelProtocols = ['http', 'sgip', 'cmpp'];
+const channelProtocols = ['sgip', 'cmpp', 'smgp'];
 
 function getProtocolList(role) {
   return role === 'client' ? clientProtocols : channelProtocols;
@@ -461,6 +461,27 @@ function switchErrorRole(role) {
   const channelTab = document.getElementById('errorChannelTab');
   if (clientTab) clientTab.classList.toggle('active', role === 'client');
   if (channelTab) channelTab.classList.toggle('active', role === 'channel');
+  
+  // 切换协议卡片显示
+  const errorHttp = document.getElementById('error-http');
+  const errorSgip = document.getElementById('error-sgip');
+  const errorCmpp = document.getElementById('error-cmpp');
+  const errorSmgp = document.getElementById('error-smgp');
+  
+  if (role === 'client') {
+    // 客户侧：HTTP、SGIP、CMPP
+    if (errorHttp) errorHttp.style.display = 'block';
+    if (errorSgip) errorSgip.style.display = 'block';
+    if (errorCmpp) errorCmpp.style.display = 'block';
+    if (errorSmgp) errorSmgp.style.display = 'none';
+  } else {
+    // 通道侧：SGIP、CMPP、SMGP
+    if (errorHttp) errorHttp.style.display = 'none';
+    if (errorSgip) errorSgip.style.display = 'block';
+    if (errorCmpp) errorCmpp.style.display = 'block';
+    if (errorSmgp) errorSmgp.style.display = 'block';
+  }
+  
   renderAllErrorCharts(currentErrorRole);
 }
 
@@ -549,14 +570,14 @@ const channelLinksMap = {
 };
 
 const customerAccounts = [
-  { account: "cust_tech001", protocol: "CMPP", maxConns: 5000, rateLimit: "2000/s" },
-  { account: "cust_finance02", protocol: "SGIP", maxConns: 2000, rateLimit: "800/s" },
-  { account: "cust_game03", protocol: "CMPP", maxConns: 8000, rateLimit: "5000/s" }
+  { customer: "科技有限公司", account: "cust_tech001", protocol: "CMPP", maxConns: 5000, rateLimit: "2000/s" },
+  { customer: "金融服务集团", account: "cust_finance02", protocol: "SGIP", maxConns: 2000, rateLimit: "800/s" },
+  { customer: "游戏娱乐平台", account: "cust_game03", protocol: "CMPP", maxConns: 8000, rateLimit: "5000/s" }
 ];
 
 const channelAccounts = [
-  { account: "ch_general_01", protocol: "WebSocket", maxConns: 3000, rateLimit: "1500/s" },
-  { account: "ch_express_02", protocol: "TCP", maxConns: 1500, rateLimit: "600/s" }
+  { channelProvider: "通用通道商", account: "ch_general_01", protocol: "WebSocket", maxConns: 3000, rateLimit: "1500/s" },
+  { channelProvider: "快速通道商", account: "ch_express_02", protocol: "TCP", maxConns: 1500, rateLimit: "600/s" }
 ];
 
 let currentLongLinkView = 'customer';
@@ -564,6 +585,10 @@ let currentCustomerDim = 'customer-dim';
 let currentChannelDim = 'channel-dim';
 let customerDrillData = null;
 let channelDrillData = null;
+let customerSearchKeyword = '';
+let accountSearchKeyword = '';
+let channelProviderKeyword = '';
+let channelAccountKeyword = '';
 
 function computeCustomerMetrics() {
   return customerAccounts.map(acc => {
@@ -621,12 +646,23 @@ function switchLongLinkView(view) {
   const channelTab = document.getElementById('longlink-channel-tab');
   const customerDimTabs = document.getElementById('customer-dim-tabs');
   const channelDimTabs = document.getElementById('channel-dim-tabs');
+  const customerSearchBar = document.getElementById('customer-search-bar');
+  const channelSearchBar = document.getElementById('channel-search-bar');
   
   if (customerTab) customerTab.classList.toggle('active', view === 'customer');
   if (channelTab) channelTab.classList.toggle('active', view === 'channel');
   
   if (customerDimTabs) customerDimTabs.style.display = view === 'customer' ? 'flex' : 'none';
   if (channelDimTabs) channelDimTabs.style.display = view === 'channel' ? 'flex' : 'none';
+  
+  // 切换视图时，根据维度显示对应的搜索区域
+  if (view === 'customer') {
+    if (customerSearchBar) customerSearchBar.style.display = currentCustomerDim === 'customer-dim' ? 'flex' : 'none';
+    if (channelSearchBar) channelSearchBar.style.display = 'none';
+  } else {
+    if (channelSearchBar) channelSearchBar.style.display = currentChannelDim === 'channel-dim' ? 'flex' : 'none';
+    if (customerSearchBar) customerSearchBar.style.display = 'none';
+  }
   
   renderLongLinkContent();
 }
@@ -636,6 +672,13 @@ function switchCustomerDim(dim) {
   document.querySelectorAll('[data-sub-customer]').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-sub-customer') === dim);
   });
+  
+  // 客户维度显示搜索，节点维度隐藏搜索
+  const customerSearchBar = document.getElementById('customer-search-bar');
+  if (customerSearchBar) {
+    customerSearchBar.style.display = dim === 'customer-dim' ? 'flex' : 'none';
+  }
+  
   renderLongLinkContent();
 }
 
@@ -644,6 +687,13 @@ function switchChannelDim(dim) {
   document.querySelectorAll('[data-sub-channel]').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-sub-channel') === dim);
   });
+  
+  // 通道维度显示搜索，节点维度隐藏搜索
+  const channelSearchBar = document.getElementById('channel-search-bar');
+  if (channelSearchBar) {
+    channelSearchBar.style.display = dim === 'channel-dim' ? 'flex' : 'none';
+  }
+  
   renderLongLinkContent();
 }
 
@@ -662,11 +712,14 @@ function renderCustomerLinks() {
   if (!container) return;
   const metrics = computeCustomerMetrics();
   if (currentCustomerDim === 'customer-dim') {
-    let table = '<table class="data-table"><thead><tr><th>账号</th><th>协议</th><th>最大链接数</th><th>限制速率</th><th>当前链接数</th><th>当前并发</th><th>操作</th></tr></thead><tbody>';
+    let table = '<table class="data-table"><thead><tr><th>客户</th><th>账号</th><th>协议</th><th>最大链接数</th><th>限制速率</th><th>当前链接数</th><th>当前并发</th><th>操作</th></tr></thead><tbody>';
     metrics.forEach(acc => {
-      table += '<tr><td><strong>' + acc.account + '</strong></td><td>' + acc.protocol + '</td><td>' + acc.maxConns + '</td><td>' + acc.rateLimit + '</td><td>' + acc.curConns + '</td><td>' + acc.curConcurrent + '</td><td><button class="btn-icon" onclick="drillDownCustomerAccount(\'' + acc.account + '\')"><i class="fas fa-search-plus"></i> 下钻</button></td></tr>';
+      table += '<tr><td><strong>' + acc.customer + '</strong></td><td>' + acc.account + '</td><td>' + acc.protocol + '</td><td>' + acc.maxConns + '</td><td>' + acc.rateLimit + '</td><td>' + acc.curConns + '</td><td>' + acc.curConcurrent + '</td><td><button class="btn-icon" onclick="drillDownCustomerAccount(\'' + acc.account + '\')"><i class="fas fa-search-plus"></i> 详情</button></td></tr>';
     });
     table += '</tbody></table>';
+    if (metrics.length === 0) {
+      table = '<div style="text-align: center; color: #64748b; padding: 40px;">暂无匹配数据</div>';
+    }
     if (customerDrillData && customerDrillData.type === 'account') {
       table += renderCustomerAccountDrill(customerDrillData.account);
     }
@@ -675,7 +728,7 @@ function renderCustomerLinks() {
     const nodeStats = buildCustomerNodeStats();
     let table = '<table class="data-table"><thead><tr><th>链接节点IP</th><th>已建立链接数</th><th>当前节点并发</th><th>异常链接数</th><th>操作</th></tr></thead><tbody>';
     for (let [nodeIp, stat] of nodeStats.entries()) {
-      table += '<tr><td><i class="fas fa-server"></i> ' + nodeIp + '</td><td>' + stat.totalLinks + '</td><td>' + stat.totalConcurrent + '</td><td><span class="badge badge-abnormal">' + stat.abnormalCount + '</span></td><td><button class="btn-icon" onclick="drillDownCustomerNode(\'' + nodeIp + '\')"><i class="fas fa-chart-line"></i> 下钻</button></td></tr>';
+      table += '<tr><td><i class="fas fa-server"></i> ' + nodeIp + '</td><td>' + stat.totalLinks + '</td><td>' + stat.totalConcurrent + '</td><td><span class="badge badge-abnormal">' + stat.abnormalCount + '</span></td><td><button class="btn-icon" onclick="drillDownCustomerNode(\'' + nodeIp + '\')"><i class="fas fa-chart-line"></i> 详情</button></td></tr>';
     }
     table += '</tbody></table>';
     if (customerDrillData && customerDrillData.type === 'node') {
@@ -691,11 +744,14 @@ function renderChannelLinks() {
   
   if (currentChannelDim === 'channel-dim') {
     const metrics = computeChannelMetrics();
-    let table = '<table class="data-table"><thead><tr><th>通道账号</th><th>协议</th><th>最大链接数</th><th>限制速率</th><th>当前链接数</th><th>当前并发</th><th>操作</th></tr></thead><tbody>';
+    let table = '<table class="data-table"><thead><tr><th>通道商</th><th>通道账号</th><th>协议</th><th>最大链接数</th><th>限制速率</th><th>当前链接数</th><th>当前并发</th><th>操作</th></tr></thead><tbody>';
     metrics.forEach(ch => {
-      table += '<tr><td><strong>' + ch.account + '</strong></td><td>' + ch.protocol + '</td><td>' + ch.maxConns + '</td><td>' + ch.rateLimit + '</td><td>' + ch.curConns + '</td><td>' + ch.curConcurrent + '</td><td><button class="btn-icon" onclick="drillDownChannelAccount(\'' + ch.account + '\')"><i class="fas fa-list-ul"></i> 下钻</button></td></tr>';
+      table += '<tr><td><strong>' + ch.channelProvider + '</strong></td><td>' + ch.account + '</td><td>' + ch.protocol + '</td><td>' + ch.maxConns + '</td><td>' + ch.rateLimit + '</td><td>' + ch.curConns + '</td><td>' + ch.curConcurrent + '</td><td><button class="btn-icon" onclick="drillDownChannelAccount(\'' + ch.account + '\')"><i class="fas fa-list-ul"></i> 详情</button></td></tr>';
     });
     table += '</tbody></table>';
+    if (metrics.length === 0) {
+      table = '<div style="text-align: center; color: #64748b; padding: 40px;">暂无匹配数据</div>';
+    }
     if (channelDrillData && channelDrillData.type === 'channel') {
       table += renderChannelAccountDrill(channelDrillData.account);
     } else if (channelDrillData && channelDrillData.type === 'node') {
@@ -706,7 +762,7 @@ function renderChannelLinks() {
     const nodeStats = buildChannelNodeStats();
     let table = '<table class="data-table"><thead><tr><th>节点ID</th><th>总链接数</th><th>总并发数</th><th>异常链接数</th><th>操作</th></tr></thead><tbody>';
     nodeStats.forEach((stat, nodeId) => {
-      table += '<tr><td><strong>' + nodeId + '</strong></td><td>' + stat.totalLinks + '</td><td>' + stat.totalConcurrent + '</td><td>' + stat.abnormalCount + '</td><td><button class="btn-icon" onclick="drillDownChannelNode(\'' + nodeId + '\')"><i class="fas fa-list-ul"></i> 下钻</button></td></tr>';
+      table += '<tr><td><strong>' + nodeId + '</strong></td><td>' + stat.totalLinks + '</td><td>' + stat.totalConcurrent + '</td><td>' + stat.abnormalCount + '</td><td><button class="btn-icon" onclick="drillDownChannelNode(\'' + nodeId + '\')"><i class="fas fa-list-ul"></i> 详情</button></td></tr>';
     });
     table += '</tbody></table>';
     if (channelDrillData && channelDrillData.type === 'node') {
@@ -1141,6 +1197,7 @@ const customerErrorDB = {
 
 // ==================== 初始化客户分析图表 ====================
 function initCustomerAnalysisCharts() {
+  updateSendVolumeChart();
   initAccountQpsPieChart();
   initQueueBacklogBarChart();
   initSendQpsChart();
@@ -1767,10 +1824,183 @@ function renderCustomerTable() {
   `).join('');
 }
 
+// 发送业务量图表实例
+let sendVolumeChartInstance = null;
+
+// 时间范围切换
+function updateSendVolumeChart() {
+  const timeRange = document.getElementById('sendTimeRange').value;
+  const datePickerContainer = document.getElementById('datePickerContainer');
+  
+  // 显示/隐藏日期选择器
+  datePickerContainer.style.display = timeRange === 'custom' ? 'flex' : 'none';
+  
+  // 模拟生成数据
+  const timeLabels = generateTimeLabels(timeRange);
+  const sendData = generateSendVolumeData(timeLabels.length);
+  const successData = generateSuccessVolumeData(sendData);
+  
+  // 计算统计数据
+  const totalSend = sendData.reduce((a, b) => a + b, 0);
+  const totalSuccess = successData.reduce((a, b) => a + b, 0);
+  const successRate = totalSend > 0 ? ((totalSuccess / totalSend) * 100).toFixed(1) : '0';
+  
+  // 更新统计显示
+  document.getElementById('totalSendVolume').textContent = totalSend.toLocaleString();
+  document.getElementById('totalSuccessVolume').textContent = totalSuccess.toLocaleString();
+  document.getElementById('successRate').textContent = successRate + '%';
+  
+  // 渲染图表
+  renderSendVolumeChart(timeLabels, sendData, successData);
+}
+
+// 生成时间标签
+function generateTimeLabels(range) {
+  const labels = [];
+  const now = new Date();
+  
+  switch(range) {
+    case '1h':
+      for (let i = 55; i >= 0; i -= 5) {
+        const time = new Date(now.getTime() - i * 60 * 1000);
+        labels.push(time.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }));
+      }
+      break;
+    case '6h':
+      for (let i = 350; i >= 0; i -= 30) {
+        const time = new Date(now.getTime() - i * 60 * 1000);
+        labels.push(time.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }));
+      }
+      break;
+    case '24h':
+      for (let i = 23; i >= 0; i--) {
+        const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+        labels.push(time.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '00' }));
+      }
+      break;
+    case 'custom':
+      const datePicker = document.getElementById('sendDatePicker');
+      const selectedDate = datePicker.value || now.toISOString().split('T')[0];
+      for (let i = 23; i >= 0; i--) {
+        labels.push(`${i.toString().padStart(2, '0')}:00`);
+      }
+      break;
+  }
+  return labels;
+}
+
+// 生成发送量数据
+function generateSendVolumeData(count) {
+  const data = [];
+  for (let i = 0; i < count; i++) {
+    const baseValue = 5000 + Math.sin(i / 4) * 2000;
+    const randomValue = Math.floor(baseValue + (Math.random() - 0.5) * 1000);
+    data.push(Math.max(1000, randomValue));
+  }
+  return data;
+}
+
+// 生成成功量数据
+function generateSuccessVolumeData(sendData) {
+  return sendData.map(send => {
+    const successRate = 0.92 + Math.random() * 0.06; // 92% - 98%
+    return Math.floor(send * successRate);
+  });
+}
+
+// 渲染发送业务量图表
+function renderSendVolumeChart(labels, sendData, successData) {
+  const chartDom = document.getElementById('sendVolumeChart');
+  if (!chartDom) return;
+  
+  if (!sendVolumeChartInstance) {
+    sendVolumeChartInstance = echarts.init(chartDom);
+  }
+  
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(15,23,42,0.9)',
+      borderColor: '#3b82f6',
+      textStyle: { color: '#fff' },
+      formatter: function(params) {
+        let result = params[0].axisValue + '<br/>';
+        params.forEach(item => {
+          result += `${item.marker} ${item.seriesName}: ${item.value.toLocaleString()}<br/>`;
+        });
+        return result;
+      }
+    },
+    legend: {
+      data: ['发送量', '成功量'],
+      top: 10,
+      textStyle: { color: '#64748b' }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: labels,
+      axisLabel: {
+        color: '#94a3b8',
+        fontSize: 11,
+        rotate: labels.length > 12 ? 45 : 0
+      },
+      axisLine: { lineStyle: { color: '#e2e8f0' } }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        color: '#94a3b8',
+        fontSize: 11
+      },
+      axisLine: { lineStyle: { color: '#e2e8f0' } },
+      splitLine: { lineStyle: { color: '#f1f5f9' } }
+    },
+    series: [
+      {
+        name: '发送量',
+        type: 'line',
+        smooth: true,
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
+            { offset: 1, color: 'rgba(59, 130, 246, 0.05)' }
+          ])
+        },
+        lineStyle: { color: '#3b82f6', width: 2 },
+        data: sendData
+      },
+      {
+        name: '成功量',
+        type: 'line',
+        smooth: true,
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(34, 197, 94, 0.3)' },
+            { offset: 1, color: 'rgba(34, 197, 94, 0.05)' }
+          ])
+        },
+        lineStyle: { color: '#22c55e', width: 2 },
+        data: successData
+      }
+    ]
+  };
+  
+  sendVolumeChartInstance.setOption(option);
+}
+
 // 筛选客户数据
 function filterCustomerData() {
   console.log('筛选客户数据...');
   // 这里可以添加实际的筛选逻辑
+  updateSendVolumeChart();
   updateAccountQpsPieChart();
   updateQueueBacklogBarChart();
   updateSendQpsChart();
