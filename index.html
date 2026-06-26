@@ -48,6 +48,20 @@
 
       <!-- 平台概览 -->
       <div class="tab-content show" id="overview-tab">
+
+        <!-- 环境选择标签 -->
+        <div class="env-tabs" id="env-tabs" >
+          <button class="env-tab-btn active" id="env-critical" onclick="switchEnvironment('critical')">
+            <i class="fas fa-shield-alt"></i> 重保环境
+          </button>
+          <button class="env-tab-btn" id="env-normal" onclick="switchEnvironment('normal')">
+            <i class="fas fa-building"></i> 非重保环境
+          </button>
+          <button class="env-tab-btn" id="env-provincial" onclick="switchEnvironment('provincial')">
+            <i class="fas fa-map-marker-alt"></i> 省分环境
+          </button>
+        </div>
+        
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">核心指标</h3>
@@ -84,13 +98,10 @@
               <div class="mini-card-title">平均延迟时间(ms)</div>
               <div class="mini-card-content">
                 <div class="mini-item">
-                  <span class="mini-badge client">客户</span>
+                  <span class="mini-badge client">http协议客户</span>
                   <span class="mini-value">23</span>
                 </div>
-                <div class="mini-item">
-                  <span class="mini-badge channel">通道</span>
-                  <span class="mini-value">45</span>
-                </div>
+               
               </div>
             </div>
             <div class="mini-card" style="background: linear-gradient(135deg, #434343 0%, #000000 100%);">
@@ -124,19 +135,15 @@
 
         <div class="charts-row">
           <div class="card chart-card">
-            <div class="card-header">
+            <div class="card-header" >
               <h3 class="card-title">并发趋势</h3>
-              <div style="display: flex; gap: 15px; align-items: center;">
-                <div style="display: flex; gap: 5px;">
-                  <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchChartType('send')">发送</button>
-                  <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchChartType('receipt')">回执</button>
-                </div>
-                <div style="display: flex; gap: 5px;">
-                  <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchTimeRange('5m')">5分钟</button>
+              <div style="display: flex; gap: 15px; align-items: center; ">
+                  <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchChartType('send')">发送 </button>
+                  <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchChartType('receipt')">回执</button>              
                   <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchTimeRange('1h')">1小时</button>
+                  <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchTimeRange('8h')">8小时</button>
                   <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchTimeRange('24h')">24小时</button>
                 </div>
-              </div>
             </div>
             <div class="chart-container">
               <div id="qpsChart" style="width: 100%; height: 250px;"></div>
@@ -145,10 +152,10 @@
 
           <div class="card chart-card">
             <div class="card-header">
-              <h3 class="card-title">延迟时间趋势(ms)</h3>
+              <h3 class="card-title">http协议客户延迟时间趋势(ms)</h3>
               <div style="display: flex; gap: 5px; margin-left: auto;">
-                <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchLatencyTime('5m')">5分钟</button>
                 <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchLatencyTime('1h')">1小时</button>
+                <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchLatencyTime('8h')">8小时</button>
                 <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchLatencyTime('24h')">24小时</button>
               </div>
             </div>
@@ -172,8 +179,8 @@
             </div>
              <div style="display: flex; gap: 5px;">
                   <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchTimeRange('5m')">5分钟</button>
+                  <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchTimeRange('30m')">半小时</button>
                   <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchTimeRange('1h')">1小时</button>
-                  <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchTimeRange('24h')">24小时</button>
             </div>
 
           </div>
@@ -286,6 +293,13 @@
       <div class="tab-content" id="customer-tab">
         <div class="card" style="margin-bottom: 20px;">
           <div class="search-bar">
+              <div class="search-item">
+              <select class="search-select" id="customerFilter">
+                <option>重保客户</option>
+                <option>普通客户</option>
+                <option>省分客户</option>
+              </select>
+            </div>
             <div class="search-item">
               <select class="search-select" id="customerFilter">
                 <option>全部客户</option>
@@ -319,6 +333,10 @@
                 <option>SGIP</option>
               </select>
             </div>
+             <div class="search-item">
+               <input type="text"  placeholder="业务编码" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px;"">
+    
+            </div>
             <button class="btn btn-primary" onclick="filterCustomerData()">查询</button>
           </div>
           
@@ -329,20 +347,70 @@
             <div class="card-header" style="padding: 0 0 15px 0;">
               <h3 class="card-title"><i class="fas fa-chart-area"></i> 业务量分布</h3>
                     <!-- 时间筛选区域 -->
-            <div class="search-bar1" >
-            <div class="search-item1">
-              <label style="font-size: 13px; margin-right: 8px;">时间范围:</label>
+            <div class="search-bar" style="flex-wrap: nowrap; gap: 10px;">
+              <label style="font-size: 13px; display: flex; align-items: center;">时间范围:</label>
               <select class="search-select" id="sendTimeRange" onchange="updateSendVolumeChart()">
                 <option value="1h">近1小时</option>
                 <option value="6h">近6小时</option>
                 <option value="24h">近24小时</option>
-                <option value="custom">按日期选择</option>
+                <option value="custom">按时间选择</option>
               </select>
+              <div id="datePickerContainer" style="display: none;">
+                <select class="search-select" id="startHourPicker" style="min-width: 80px;" onchange="updateSendVolumeChart()">
+                  <option value="00">00</option>
+                  <option value="01">01</option>
+                  <option value="02">02</option>
+                  <option value="03">03</option>
+                  <option value="04">04</option>
+                  <option value="05">05</option>
+                  <option value="06">06</option>
+                  <option value="07">07</option>
+                  <option value="08">08</option>
+                  <option value="09">09</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
+                  <option value="13">13</option>
+                  <option value="14">14</option>
+                  <option value="15">15</option>
+                  <option value="16">16</option>
+                  <option value="17">17</option>
+                  <option value="18">18</option>
+                  <option value="19">19</option>
+                  <option value="20">20</option>
+                  <option value="21">21</option>
+                  <option value="22">22</option>
+                  <option value="23">23</option>
+                </select>
+                <span style="margin: 0 5px; color: #64748b;">-</span>
+                <select class="search-select" id="endHourPicker" style="min-width: 80px;" onchange="updateSendVolumeChart()">
+                  <option value="00">00</option>
+                  <option value="01">01</option>
+                  <option value="02">02</option>
+                  <option value="03">03</option>
+                  <option value="04">04</option>
+                  <option value="05">05</option>
+                  <option value="06">06</option>
+                  <option value="07">07</option>
+                  <option value="08">08</option>
+                  <option value="09">09</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12" selected>12</option>
+                  <option value="13">13</option>
+                  <option value="14">14</option>
+                  <option value="15">15</option>
+                  <option value="16">16</option>
+                  <option value="17">17</option>
+                  <option value="18">18</option>
+                  <option value="19">19</option>
+                  <option value="20">20</option>
+                  <option value="21">21</option>
+                  <option value="22">22</option>
+                  <option value="23">23</option>
+                </select>
+              </div>
             </div>
-            <div class="search-item" id="datePickerContainer" style="display: none;">
-              <input type="date" id="sendDatePicker" style="padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px;" onchange="updateSendVolumeChart()">
-            </div>
-          </div>
           
             </div>
             <div class="chart-container" style="width: 1400px;height: 300px;">
@@ -361,7 +429,7 @@
           <!-- 发送账号并发分布 -->
           <div class="card" style="flex: 1;">
             <div class="card-header">
-              <h3 class="card-title"><i class="fas fa-chart-pie"></i> 发送账号并发分布</h3>
+              <h3 class="card-title"><i class="fas fa-chart-pie"></i> 发送账号Top10并发分布</h3>              
               <span class="realtime-badge">🟢 实时</span>
             </div>
             <div class="chart-container" style="width: 640px; height: 340px;">
@@ -378,15 +446,15 @@
               <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> 错误码分布</h3>
               <span class="realtime-badge">🟢 实时</span>
               <div style="display: flex; gap: 15px; align-items: center; margin-left: auto;">
-                <div class="tab-switch">
+                <div class="tab-switch" style="margin-right: 50px;">
                   <button class="tab-btn active" onclick="switchCustomerErrorCodeTab('http')">HTTP</button>
                     <button class="tab-btn" onclick="switchCustomerErrorCodeTab('sgip')">SGIP</button>
                     <button class="tab-btn" onclick="switchCustomerErrorCodeTab('cmpp')">CMPP</button>
                   </div>
                   <div style="display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 6px;">
                     <button class="time-btn" style="padding: 4px 12px; font-size: 11px;" onclick="switchCustomerErrorTimeRange('5m')">5分钟</button>
-                    <button class="time-btn active" style="padding: 4px 12px; font-size: 11px;" onclick="switchCustomerErrorTimeRange('1h')">1小时</button>
-                    <button class="time-btn" style="padding: 4px 12px; font-size: 11px;" onclick="switchCustomerErrorTimeRange('24h')">24小时</button>
+                    <button class="time-btn active" style="padding: 4px 12px; font-size: 11px;" onclick="switchCustomerErrorTimeRange('30m')">半小时</button>
+                    <button class="time-btn" style="padding: 4px 12px; font-size: 11px;" onclick="switchCustomerErrorTimeRange('1h')">1小时</button>
                   </div>
                 </div>
               </div>
@@ -418,18 +486,13 @@
           <div class="card" style="flex: 1;">
             <div class="card-header">
               <h3 class="card-title"><i class="fas fa-chart-line"></i> 发送并发趋势</h3>
-              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <select class="search-select" id="sendQpsViewType" style="min-width: 100px;" onchange="updateSendQpsChart()">
-                  <option value="top5">发送量前5</option>
-                  <option value="select">自定义选择</option>
-                </select>
-                <div id="sendQpsSelectContainer" style="display: none;">
-                  <select class="search-select" id="sendQpsSelect" multiple style="min-width: 6400px; height: 100px;">
-                  </select>
-                </div>
+              <div style="display: flex; gap: 10px; align-items: center;justify-content: center;">
+                <select class="search-select" id="sendQpsViewType" style="min-width: 100px; margin-right: 100px;" onchange="updateSendQpsChart()">
+                  <option value="top5">发送top5账号</option>
+                </select>       
                 <div style="display: flex; gap: 5px;">
-                  <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchSendQpsTimeRange('5m')">5分钟</button>
-                  <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchSendQpsTimeRange('1h')">1小时</button>
+                  <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchSendQpsTimeRange('1h')">1小时</button>
+                  <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchSendQpsTimeRange('8h')">8小时</button>
                   <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchSendQpsTimeRange('24h')">24小时</button>
                 </div>
               </div>
@@ -443,9 +506,12 @@
           <div class="card" style="flex: 1;">
             <div class="card-header">
               <h3 class="card-title"><i class="fas fa-chart-line"></i> 回执并发趋势</h3>
+                 <select class="search-select" id="sendQpsViewType" style="min-width: 100px;margin-left: 130px;"  onchange="updateSendQpsChart()">
+                  <option value="top5">回执top5账号</option>
+                </select> 
               <div style="display: flex; gap: 5px; margin-left: auto;">
-                <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchReceiptQpsTimeRange('5m')">5分钟</button>
-                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchReceiptQpsTimeRange('1h')">1小时</button>
+                <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchReceiptQpsTimeRange('1h')">1小时</button>
+                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchReceiptQpsTimeRange('8h')">8小时</button>
                 <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchReceiptQpsTimeRange('24h')">24小时</button>
               </div>
             </div>
@@ -461,7 +527,7 @@
             <h3 class="card-title"><i class="fas fa-network-wired"></i> 客户连接分析</h3>
             <span class="realtime-badge">🟢 实时</span>
             <div style="display: flex; gap: 10px; align-items: center; margin-left: auto;">
-              <select class="search-select" id="topologyCustomerFilter" style="min-width: 120px;" onchange="updateTopologyChart()">
+              <select class="search-select" id="topologyCustomerFilter" style="min-width: 120px; visibility: hidden;" onchange="updateTopologyChart()">
                 <option value="cust_001" selected>云通信集团</option>
                 <option value="cust_002">电商平台</option>
                 <option value="cust_003">金融服务</option>
@@ -500,6 +566,13 @@
       <div class="tab-content" id="channel-tab">
         <div class="card" style="margin-bottom: 20px;">
           <div class="search-bar">
+             <div class="search-item">
+              <select class="search-select">
+                <option>集团标品通道</option>
+                <option>省分通道</option>
+              </select>
+            </div>
+
             <div class="search-item">
               <select class="search-select">
                 <option>全部通道商</option>
@@ -542,7 +615,7 @@
           <!-- 通道账号并发分布 -->
           <div class="card" style="flex: 1;">
             <div class="card-header">
-              <h3 class="card-title"><i class="fas fa-chart-pie"></i> 通道账号并发分布</h3>
+              <h3 class="card-title"><i class="fas fa-chart-pie"></i> 通道账号Top10并发分布</h3>
               <span class="realtime-badge">🟢 实时</span>
             </div>
             <div class="chart-container" style="width: 640px; height: 340px;">
@@ -559,15 +632,15 @@
               <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> 错误码分布</h3>
               <span class="realtime-badge">🟢 实时</span>
               <div style="display: flex; gap: 15px; align-items: center; margin-left: auto;">
-                <div class="tab-switch">
+                <div class="tab-switch" style="margin-right: 50px;">
                   <button class="tab-btn active" onclick="switchChannelErrorCodeTab('cmpp')">CMPP</button>
                   <button class="tab-btn" onclick="switchChannelErrorCodeTab('sgip')">SGIP</button>
                   <button class="tab-btn" onclick="switchChannelErrorCodeTab('smgp')">SMGP</button>
                 </div>
                 <div style="display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 6px;">
                   <button class="time-btn" style="padding: 4px 12px; font-size: 11px;" onclick="switchChannelErrorTimeRange('5m')">5分钟</button>
-                  <button class="time-btn active" style="padding: 4px 12px; font-size: 11px;" onclick="switchChannelErrorTimeRange('1h')">1小时</button>
-                  <button class="time-btn" style="padding: 4px 12px; font-size: 11px;" onclick="switchChannelErrorTimeRange('24h')">24小时</button>
+                  <button class="time-btn active" style="padding: 4px 12px; font-size: 11px;" onclick="switchChannelErrorTimeRange('1h')">半小时</button>
+                  <button class="time-btn" style="padding: 4px 12px; font-size: 11px;" onclick="switchChannelErrorTimeRange('24h')">1小时</button>
                 </div>
               </div>
             </div>
@@ -580,6 +653,25 @@
             </div>
           </div>
         </div>
+
+           <!-- 通道连接分析 -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-network-wired"></i> 通道连接分析</h3>
+            <span class="realtime-badge">🟢 实时</span>
+            <div style="display: flex; gap: 10px; align-items: center; margin-left: auto;">
+              <select class="search-select" id="channelTopologyFilter" style="min-width: 120px; visibility: hidden;" onchange="updateChannelTopologyChart()">
+                <option value="ch_001" selected>阿里云短信通道</option>
+                <option value="ch_002">腾讯云短信通道</option>
+                <option value="ch_003">移动短信通道</option>
+              </select>
+            </div>
+          </div>
+          <div class="chart-container" style="width: 1200px; height: 450px;">
+            <div id="channelTopologyChart" style="width: 1200px; height: 450px;"></div>
+          </div>
+        </div>
+
 
         <!-- 通道队列积压 -->
         <div class="card" style="margin-bottom: 20px;">
@@ -599,17 +691,14 @@
             <div class="card-header">
               <h3 class="card-title"><i class="fas fa-chart-line"></i> 发送并发趋势</h3>
               <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <select class="search-select" id="channelSendQpsViewType" style="min-width: 100px;" onchange="updateChannelSendQpsChart()">
-                  <option value="top5">发送量前5</option>
-                  <option value="select">自定义选择</option>
+                <select class="search-select" id="channelSendQpsViewType" style="min-width: 100px; margin-right: 100px;" onchange="updateChannelSendQpsChart()">
+                  <option value="top5">发送top5通道</option>
                 </select>
                 <div id="channelSendQpsSelectContainer" style="display: none;">
-                  <select class="search-select" id="channelSendQpsSelect" multiple style="min-width: 150px; height: 100px;">
-                  </select>
                 </div>
                 <div style="display: flex; gap: 5px;">
-                  <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelSendQpsTimeRange('5m')">5分钟</button>
-                  <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelSendQpsTimeRange('1h')">1小时</button>
+                  <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelSendQpsTimeRange('1h')">1小时</button>
+                  <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelSendQpsTimeRange('8h')">8小时</button>
                   <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelSendQpsTimeRange('24h')">24小时</button>
                 </div>
               </div>
@@ -623,9 +712,12 @@
           <div class="card" style="flex: 1;">
             <div class="card-header">
               <h3 class="card-title"><i class="fas fa-chart-line"></i> 回执并发趋势</h3>
+               <select class="search-select" id="channelReceiptQpsViewType" style="min-width: 100px; display: flex; justify-content: center; margin-left: 130px;" onchange="updateChannelReceiptQpsChart()">
+                  <option value="top5">回执top5通道</option>
+                </select>
               <div style="display: flex; gap: 5px; margin-left: auto;">
-                <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelReceiptQpsTimeRange('5m')">5分钟</button>
-                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelReceiptQpsTimeRange('1h')">1小时</button>
+                <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelReceiptQpsTimeRange('1h')">1小时</button>
+                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelReceiptQpsTimeRange('8h')">8h</button>
                 <button class="btn btn-default" style="padding: 6px 12px; font-size: 12px;" onclick="switchChannelReceiptQpsTimeRange('24h')">24小时</button>
               </div>
             </div>
@@ -635,23 +727,7 @@
           </div>
         </div>
 
-        <!-- 通道连接分析 -->
-        <div class="card" style="margin-bottom: 20px;">
-          <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-network-wired"></i> 通道连接分析</h3>
-            <span class="realtime-badge">🟢 实时</span>
-            <div style="display: flex; gap: 10px; align-items: center; margin-left: auto;">
-              <select class="search-select" id="channelTopologyFilter" style="min-width: 120px;" onchange="updateChannelTopologyChart()">
-                <option value="ch_001" selected>阿里云短信通道</option>
-                <option value="ch_002">腾讯云短信通道</option>
-                <option value="ch_003">移动短信通道</option>
-              </select>
-            </div>
-          </div>
-          <div class="chart-container" style="width: 1200px; height: 450px;">
-            <div id="channelTopologyChart" style="width: 1200px; height: 450px;"></div>
-          </div>
-        </div>
+     
       </div>
     </main>
   </div>

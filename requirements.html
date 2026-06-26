@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控告警原型项目 - 需求文档</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333; background: #f5f7fa; padding: 40px 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 26px; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .nav { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 15px 30px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .nav a { color: #64748b; text-decoration: none; font-size: 13px; padding: 6px 12px; border-radius: 4px; transition: all 0.2s; }
+        .nav a:hover { background: #e2e8f0; color: #1e293b; }
+        .content { padding: 30px; }
+        .section { margin-bottom: 50px; }
+        .section-title { font-size: 20px; font-weight: 600; color: #1e293b; margin-bottom: 25px; padding-bottom: 12px; border-bottom: 2px solid #3b82f6; }
+        .subsection-title { font-size: 16px; font-weight: 600; color: #334155; margin: 25px 0 15px; padding-left: 12px; border-left: 3px solid #3b82f6; }
+        .subsubsection-title { font-size: 14px; font-weight: 600; color: #475569; margin: 18px 0 10px; padding-left: 8px; border-left: 2px solid #60a5fa; }
+        p { color: #64748b; margin-bottom: 12px; font-size: 14px; }
+        ul, ol { margin-left: 28px; margin-bottom: 12px; }
+        li { color: #64748b; margin-bottom: 10px; font-size: 14px; }
+        .feature-card { background: #f8fafc; border-radius: 8px; padding: 22px; margin-bottom: 18px; border-left: 4px solid #3b82f6; }
+        .feature-card h4 { color: #1e293b; margin-bottom: 12px; font-size: 15px; }
+        .feature-card p { margin-bottom: 10px; font-size: 14px; }
+        .feature-card ul { margin-left: 20px; }
+        .feature-card li { font-size: 13px; margin-bottom: 6px; }
+        .table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 13px; }
+        .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        .table th { background: #f8fafc; font-weight: 600; color: #334155; }
+        .table tr:hover { background: #f8fafc; }
+        .status { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .status-approved { background: #dcfce7; color: #16a34a; }
+        .status-draft { background: #fef3c7; color: #d97706; }
+        .status-pending { background: #dbeafe; color: #2563eb; }
+        .footer { background: #1e293b; color: #94a3b8; padding: 20px 30px; text-align: center; font-size: 13px; }
+        .highlight { background: #fef3c7; padding: 15px 18px; border-radius: 6px; margin: 18px 0; border-left: 4px solid #f59e0b; }
+        .data-spec { background: #f0fdf4; border-radius: 6px; padding: 12px 15px; margin: 8px 0; border-left: 3px solid #22c55e; }
+        .timeline-spec { background: #eff6ff; border-radius: 6px; padding: 12px 15px; margin: 8px 0; border-left: 3px solid #3b82f6; }
+        code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 13px; color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>监控告警原型项目</h1>
+            <p>需求规格说明书 | 版本: V1.1 | 状态: 已通过评审</p>
+        </div>
+        
+        <div class="nav">
+            <a href="#project-overview">项目概述</a>
+            <a href="#functional-requirements">功能需求</a>
+            <a href="#non-functional">非功能需求</a>
+            <a href="#data-model">数据模型</a>
+            <a href="#ui-spec">UI规范</a>
+            <a href="#deliverables">交付物</a>
+        </div>
+        
+        <div class="content">
+            <div id="project-overview" class="section">
+                <h2 class="section-title">一、项目概述</h2>
+                <p>本项目是一个监控告警原型系统，旨在为企业提供实时的业务监控、告警管理和数据分析能力。系统采用现代化的前端技术栈，提供直观的可视化界面，帮助运维人员快速发现和处理问题。</p>
+                
+                <div class="subsection-title">1.1 项目目标</div>
+                <ul>
+                    <li>提供实时监控大屏，展示核心业务指标（并发、延迟、错误码、链接状态）</li>
+                    <li>实现告警管理，支持告警查询、统计和处理</li>
+                    <li>提供多维度业务数据分析能力（客户维度、通道维度）</li>
+                    <li>支持容量规划和资源监控</li>
+                    <li>提供日志查询和分析功能</li>
+                </ul>
+                
+                <div class="subsection-title">1.2 项目范围</div>
+                <p>本项目为原型系统，包含以下核心模块：</p>
+                <ul>
+                    <li><strong>平台概览</strong>：实时监控大屏，展示并发趋势、延迟趋势、错误码分布、长链接监控</li>
+                    <li><strong>客户分析</strong>：客户维度的业务分析，包含业务量统计、队列积压、并发趋势</li>
+                    <li><strong>通道分析</strong>：通道维度的监控分析，包含通道性能、链路状态</li>
+                    <li><strong>告警管理</strong>：告警列表、告警统计、告警处理操作</li>
+                    <li><strong>业务监控</strong>：业务量分析、成功率统计、趋势分析</li>
+                    <li><strong>容量监控</strong>：资源使用情况、容量预警、负载均衡</li>
+                    <li><strong>日志查询</strong>：日志检索、日志分析、日志导出</li>
+                </ul>
+            </div>
+            
+            <div id="functional-requirements" class="section">
+                <h2 class="section-title">二、功能需求</h2>
+                
+                <div class="subsection-title">2.1 平台概览模块</div>
+                
+                <div class="feature-card">
+                    <h4>2.1.1 实时并发趋势</h4>
+                    <p>展示系统发送和回执的实时并发数据，支持视图切换和时间范围选择。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>支持发送/回执视图切换，点击按钮切换显示对应数据</li>
+                        <li>支持5分钟/1小时/24小时时间范围切换</li>
+                        <li>实时数据更新，更新频率≤5秒</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>数据点密度：5分钟展示30个数据点（10秒/点），1小时展示60个数据点（1分钟/点），24小时展示288个数据点（5分钟/点）</li>
+                            <li>数值精度：整数，单位为"次/秒"</li>
+                            <li>数据格式：JSON数组，包含时间戳和数值字段</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-spec"><strong>时间轴要求：</strong>
+                        <ul>
+                            <li>时间轴刻度均匀分布，根据时间范围自动调整刻度密度</li>
+                            <li>5分钟：每1分钟一个刻度，共5个刻度</li>
+                            <li>1小时：每10分钟一个刻度，共6个刻度</li>
+                            <li>24小时：每2小时一个刻度，共12个刻度</li>
+                            <li>时间格式：HH:MM（小时:分钟）</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.1.2 延迟时间趋势</h4>
+                    <p>展示系统平均延迟的时间变化趋势，支持按时间范围筛选。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>展示P50、P90、P99延迟曲线</li>
+                        <li>支持5分钟/1小时/24小时时间范围切换</li>
+                        <li>提供延迟分布统计面板</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>延迟单位：毫秒（ms）</li>
+                            <li>精度：整数</li>
+                            <li>数据维度：P50（中位数）、P90（90分位）、P99（99分位）</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-spec"><strong>时间轴要求：</strong>
+                        <ul>
+                            <li>时间轴刻度均匀分布，与并发趋势保持一致</li>
+                            <li>支持自动调整刻度密度</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.1.3 错误码分布监控</h4>
+                    <p>展示各协议的错误码分布，支持客户侧/通道侧切换。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>支持客户侧/通道侧切换</li>
+                        <li>客户侧显示：HTTP、SGIP、CMPP 三个协议卡片</li>
+                        <li>通道侧显示：SGIP、CMPP、SMGP 三个协议卡片</li>
+                        <li>支持5分钟/1小时/24小时时间范围切换</li>
+                        <li>每个卡片包含饼图展示错误码分布、总错误次数、高频错误码</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>错误码格式：协议标识+错误码（如 HTTP_404）</li>
+                            <li>错误描述：错误码对应的中文描述</li>
+                            <li>统计周期：与时间范围对应</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.1.4 长链接监控</h4>
+                    <p>监控客户链接和通道链接状态，支持多维度切换和详情查看。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>支持客户链接/通道链接切换</li>
+                        <li>客户链接支持：客户维度、节点维度切换</li>
+                        <li>通道链接支持：通道维度、节点维度切换</li>
+                        <li>客户维度显示字段：客户、账号、协议、最大链接数、限制速率、当前链接数、当前并发、操作</li>
+                        <li>节点维度显示字段：节点编号、平台编号、节点IP、已建立链接数、当前节点并发、异常链接数、操作</li>
+                        <li>支持搜索功能（客户维度：按客户、账号搜索；通道维度：按通道商、通道账号搜索）</li>
+                        <li>点击详情按钮展示链接详情弹窗</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>客户维度：客户名称、账号ID、协议类型（HTTP/SGIP/CMPP）、最大链接数（整数）、限制速率（整数，单位：次/秒）、当前链接数（整数）、当前并发（整数）</li>
+                            <li>节点维度：节点编号（整数）、平台编号（字符串，如 P001）、节点IP（IPv4格式）、已建立链接数（整数）、当前节点并发（整数）、异常链接数（整数）</li>
+                            <li>链接详情：客户、节点编号、平台编号、客户IP、节点IP、链接ID、当前并发、状态、异常原因</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="subsection-title">2.2 客户分析模块</div>
+                
+                <div class="feature-card">
+                    <h4>2.2.1 筛选条件</h4>
+                    <p>提供多维度筛选功能，支持按客户、账号、运营商、协议筛选。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>客户筛选：下拉选择，包含"全部客户"选项</li>
+                        <li>账号筛选：下拉选择，包含"全部账号"选项</li>
+                        <li>运营商筛选：下拉选择，包含"全部运营商"及具体运营商（中国联通、中国电信、中国移动、中国广电）</li>
+                        <li>协议筛选：下拉选择，包含"全部协议"及具体协议（HTTP、SMPP、SGIP）</li>
+                        <li>查询按钮：点击后应用筛选条件</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.2.2 发送业务量时间分布</h4>
+                    <p>展示发送量和成功量的时间分布趋势，支持多种时间范围选择。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>使用面积图展示发送量和成功量趋势</li>
+                        <li>发送量用蓝色表示，成功量用绿色表示</li>
+                        <li>支持近1小时/6小时/24小时/按日期选择</li>
+                        <li>显示统计数据：总发送量、总成功量、成功率</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>发送量：整数，单位为"条"</li>
+                            <li>成功量：整数，单位为"条"</li>
+                            <li>成功率：百分比，保留2位小数</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-spec"><strong>时间轴要求：</strong>
+                        <ul>
+                            <li>近1小时：每10分钟一个刻度，共6个刻度，时间格式 HH:MM</li>
+                            <li>近6小时：每1小时一个刻度，共6个刻度，时间格式 HH:00</li>
+                            <li>近24小时：每2小时一个刻度，共12个刻度，时间格式 HH:00</li>
+                            <li>按日期选择：每4小时一个刻度，共6个刻度，时间格式 MM-DD HH:00</li>
+                            <li>时间轴刻度必须均匀分布，确保视觉效果一致</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.2.3 发送账号并发分布</h4>
+                    <p>以饼图形式展示各账号的并发分布情况。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>饼图展示各账号并发占比</li>
+                        <li>显示总并发数统计</li>
+                        <li>实时数据更新</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>账号名称：字符串</li>
+                            <li>并发数：整数</li>
+                            <li>占比：百分比，保留1位小数</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.2.4 客户队列积压TOP20</h4>
+                    <p>展示队列积压排名前20的客户。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>柱状图展示TOP20客户队列积压</li>
+                        <li>按积压数量降序排列</li>
+                        <li>实时更新数据</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>客户名称：字符串</li>
+                            <li>积压数量：整数，单位为"条"</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.2.5 发送/回执并发趋势</h4>
+                    <p>展示发送和回执的并发趋势，支持自定义选择客户。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>发送并发趋势：支持"发送量前5"和"自定义选择"两种模式</li>
+                        <li>回执并发趋势：展示回执并发数据</li>
+                        <li>支持5分钟/1小时/24小时时间范围切换</li>
+                        <li>自定义选择模式下，多选框显示在选择器下方</li>
+                    </ul>
+                    <div class="timeline-spec"><strong>时间轴要求：</strong>
+                        <ul>
+                            <li>与"发送业务量时间分布"时间轴保持一致</li>
+                            <li>刻度均匀分布，自动调整密度</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="subsection-title">2.3 通道分析模块</div>
+                
+                <div class="feature-card">
+                    <h4>2.3.1 通道维度分析</h4>
+                    <p>展示通道维度的监控数据。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>显示通道商、通道账号、协议、最大链接数、限制速率、当前链接数、当前并发、操作</li>
+                        <li>支持按通道商、通道账号搜索</li>
+                        <li>点击详情按钮展示通道链接详情</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.3.2 节点维度分析</h4>
+                    <p>展示节点维度的监控数据。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>显示节点编号、平台编号、节点IP、已建立链接数、当前节点并发、异常链接数、操作</li>
+                        <li>点击详情按钮展示节点上的通道链接</li>
+                    </ul>
+                </div>
+                
+                <div class="subsection-title">2.4 告警管理模块</div>
+                
+                <div class="feature-card">
+                    <h4>2.4.1 告警列表</h4>
+                    <p>展示告警信息，支持分页和筛选。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>显示告警级别（严重/警告/信息）、告警时间、告警内容、告警来源</li>
+                        <li>支持按级别筛选</li>
+                        <li>支持分页显示，每页20条</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>告警级别：严重（红色）、警告（橙色）、信息（蓝色）</li>
+                            <li>告警时间：格式 YYYY-MM-DD HH:MM:SS</li>
+                            <li>告警内容：字符串，描述告警原因</li>
+                            <li>告警来源：字符串，标识告警产生的模块或系统</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.4.2 告警统计</h4>
+                    <p>按级别统计告警数量，展示告警趋势。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>统计各级别告警数量</li>
+                        <li>展示告警数量趋势图</li>
+                        <li>支持时间范围选择</li>
+                    </ul>
+                    <div class="timeline-spec"><strong>时间轴要求：</strong>
+                        <ul>
+                            <li>时间轴刻度均匀分布</li>
+                            <li>根据时间范围自动调整刻度密度</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.4.3 告警处理</h4>
+                    <p>支持告警确认、关闭等操作。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>告警确认：标记告警已被关注</li>
+                        <li>告警关闭：标记告警已处理完毕</li>
+                        <li>支持批量操作</li>
+                    </ul>
+                </div>
+                
+                <div class="subsection-title">2.5 业务监控模块</div>
+                
+                <div class="feature-card">
+                    <h4>2.5.1 业务量分析</h4>
+                    <p>展示业务量统计数据，支持按时间维度分析。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>展示发送量、接收量统计</li>
+                        <li>支持按小时/天/周统计</li>
+                        <li>提供同比、环比分析</li>
+                    </ul>
+                    <div class="timeline-spec"><strong>时间轴要求：</strong>
+                        <ul>
+                            <li>按小时：24个刻度，时间格式 HH:00</li>
+                            <li>按天：7个刻度，时间格式 MM-DD</li>
+                            <li>按周：4个刻度，时间格式 WW周</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.5.2 成功率统计</h4>
+                    <p>统计发送成功率，展示成功率趋势。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>展示发送成功率趋势</li>
+                        <li>设置成功率阈值告警</li>
+                        <li>支持按时间维度分析</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>成功率：百分比，保留2位小数</li>
+                            <li>阈值：可配置，默认99.9%</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="subsection-title">2.6 容量监控模块</div>
+                
+                <div class="feature-card">
+                    <h4>2.6.1 资源使用监控</h4>
+                    <p>展示CPU、内存、磁盘等资源使用情况。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>展示CPU使用率、内存使用率、磁盘使用率</li>
+                        <li>实时更新数据，更新频率≤10秒</li>
+                        <li>显示资源使用趋势</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>使用率：百分比，保留1位小数</li>
+                            <li>单位：CPU（核）、内存（GB）、磁盘（GB）</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.6.2 容量预警</h4>
+                    <p>当资源使用达到阈值时触发预警。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>支持配置阈值（默认：CPU 80%、内存 85%、磁盘 90%）</li>
+                        <li>超过阈值时显示警告标识</li>
+                        <li>触发告警通知</li>
+                    </ul>
+                </div>
+                
+                <div class="subsection-title">2.7 日志查询模块</div>
+                
+                <div class="feature-card">
+                    <h4>2.7.1 日志检索</h4>
+                    <p>支持按关键词、时间范围检索日志。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>关键词搜索：支持模糊匹配</li>
+                        <li>时间范围选择：支持自定义时间区间</li>
+                        <li>日志级别筛选：DEBUG/INFO/WARN/ERROR</li>
+                        <li>分页显示，每页50条</li>
+                    </ul>
+                    <div class="data-spec"><strong>数据规格：</strong>
+                        <ul>
+                            <li>日志时间：格式 YYYY-MM-DD HH:MM:SS.SSS</li>
+                            <li>日志级别：DEBUG、INFO、WARN、ERROR</li>
+                            <li>日志内容：字符串</li>
+                            <li>日志来源：字符串，标识日志产生的模块</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>2.7.2 日志分析</h4>
+                    <p>提供日志统计分析功能。</p>
+                    <div class="subsubsection-title">功能特性</div>
+                    <ul>
+                        <li>按级别统计日志数量</li>
+                        <li>展示日志数量趋势</li>
+                        <li>支持导出日志</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div id="non-functional" class="section">
+                <h2 class="section-title">三、非功能需求</h2>
+                
+                <div class="subsection-title">3.1 性能要求</div>
+                <ul>
+                    <li><strong>页面加载时间</strong>：首屏加载时间≤3秒</li>
+                    <li><strong>图表渲染时间</strong>：≤1秒</li>
+                    <li><strong>实时数据更新频率</strong>：≤5秒</li>
+                    <li><strong>接口响应时间</strong>：≤500ms</li>
+                </ul>
+                
+                <div class="subsection-title">3.2 兼容性要求</div>
+                <ul>
+                    <li>支持主流浏览器：Chrome（≥90）、Firefox（≥88）、Safari（≥14）、Edge（≥90）</li>
+                    <li>支持响应式布局，适配不同屏幕尺寸（最小分辨率 1280×720）</li>
+                </ul>
+                
+                <div class="subsection-title">3.3 易用性要求</div>
+                <ul>
+                    <li>界面简洁清晰，操作直观，符合用户习惯</li>
+                    <li>提供实时状态指示（如在线状态标识）</li>
+                    <li>支持快捷键操作（如 Ctrl+R 刷新页面）</li>
+                    <li>提供操作提示和帮助信息</li>
+                </ul>
+                
+                <div class="subsection-title">3.4 可维护性要求</div>
+                <ul>
+                    <li>代码结构清晰，模块化设计，便于扩展</li>
+                    <li>提供完整的注释文档</li>
+                    <li>遵循统一的编码规范（ESLint、Prettier）</li>
+                    <li>代码版本管理，提交信息规范</li>
+                </ul>
+            </div>
+            
+            <div id="data-model" class="section">
+                <h2 class="section-title">四、数据模型</h2>
+                
+                <div class="subsection-title">4.1 客户链接数据结构</div>
+                <table class="table">
+                    <tr><th>字段名</th><th>类型</th><th>说明</th><th>示例值</th></tr>
+                    <tr><td>customer</td><td>string</td><td>客户名称</td><td>科技有限公司</td></tr>
+                    <tr><td>clientIp</td><td>string</td><td>客户端IP</td><td>192.168.1.100</td></tr>
+                    <tr><td>nodeIp</td><td>string</td><td>节点IP</td><td>10.0.0.1</td></tr>
+                    <tr><td>nodeSeq</td><td>number</td><td>节点编号</td><td>1</td></tr>
+                    <tr><td>platformCode</td><td>string</td><td>平台编号</td><td>P001</td></tr>
+                    <tr><td>linkId</td><td>string</td><td>链接ID</td><td>link_001</td></tr>
+                    <tr><td>concurrent</td><td>number</td><td>当前并发数</td><td>150</td></tr>
+                    <tr><td>status</td><td>string</td><td>状态</td><td>正常/异常</td></tr>
+                    <tr><td>abnormalReason</td><td>string</td><td>异常原因</td><td>连接超时</td></tr>
+                    <tr><td>account</td><td>string</td><td>账号</td><td>acc_001</td></tr>
+                    <tr><td>protocol</td><td>string</td><td>协议</td><td>HTTP/SGIP/CMPP</td></tr>
+                    <tr><td>maxConns</td><td>number</td><td>最大链接数</td><td>1000</td></tr>
+                    <tr><td>rateLimit</td><td>number</td><td>限制速率（次/秒）</td><td>500</td></tr>
+                    <tr><td>curConns</td><td>number</td><td>当前链接数</td><td>200</td></tr>
+                </table>
+                
+                <div class="subsection-title">4.2 通道链接数据结构</div>
+                <table class="table">
+                    <tr><th>字段名</th><th>类型</th><th>说明</th><th>示例值</th></tr>
+                    <tr><td>channelProvider</td><td>string</td><td>通道商名称</td><td>通用通道商</td></tr>
+                    <tr><td>account</td><td>string</td><td>通道账号</td><td>channel_acc_001</td></tr>
+                    <tr><td>protocol</td><td>string</td><td>协议</td><td>SGIP/CMPP/SMGP</td></tr>
+                    <tr><td>nodeIp</td><td>string</td><td>节点IP</td><td>10.0.0.2</td></tr>
+                    <tr><td>nodeSeq</td><td>number</td><td>节点编号</td><td>2</td></tr>
+                    <tr><td>platformCode</td><td>string</td><td>平台编号</td><td>P002</td></tr>
+                    <tr><td>maxConns</td><td>number</td><td>最大链接数</td><td>500</td></tr>
+                    <tr><td>rateLimit</td><td>number</td><td>限制速率（次/秒）</td><td>300</td></tr>
+                    <tr><td>curConns</td><td>number</td><td>当前链接数</td><td>150</td></tr>
+                    <tr><td>curConcurrent</td><td>number</td><td>当前并发数</td><td>120</td></tr>
+                </table>
+                
+                <div class="subsection-title">4.3 错误码数据结构</div>
+                <table class="table">
+                    <tr><th>字段名</th><th>类型</th><th>说明</th><th>示例值</th></tr>
+                    <tr><td>role</td><td>string</td><td>角色</td><td>client/channel</td></tr>
+                    <tr><td>protocol</td><td>string</td><td>协议类型</td><td>HTTP/SGIP/CMPP/SMGP</td></tr>
+                    <tr><td>errorCode</td><td>string</td><td>错误码</td><td>404</td></tr>
+                    <tr><td>errorDesc</td><td>string</td><td>错误描述</td><td>未找到资源</td></tr>
+                    <tr><td>count</td><td>number</td><td>错误次数</td><td>156</td></tr>
+                    <tr><td>timeRange</td><td>string</td><td>时间范围</td><td>5m/1h/24h</td></tr>
+                </table>
+                
+                <div class="subsection-title">4.4 告警数据结构</div>
+                <table class="table">
+                    <tr><th>字段名</th><th>类型</th><th>说明</th><th>示例值</th></tr>
+                    <tr><td>id</td><td>string</td><td>告警ID</td><td>alert_001</td></tr>
+                    <tr><td>level</td><td>string</td><td>告警级别</td><td>严重/警告/信息</td></tr>
+                    <tr><td>time</td><td>string</td><td>告警时间</td><td>2024-01-15 10:30:00</td></tr>
+                    <tr><td>content</td><td>string</td><td>告警内容</td><td>CPU使用率超过80%</td></tr>
+                    <tr><td>source</td><td>string</td><td>告警来源</td><td>容量监控</td></tr>
+                    <tr><td>status</td><td>string</td><td>处理状态</td><td>未处理/已确认/已关闭</td></tr>
+                </table>
+            </div>
+            
+            <div id="ui-spec" class="section">
+                <h2 class="section-title">五、UI设计规范</h2>
+                
+                <div class="subsection-title">5.1 配色方案</div>
+                <ul>
+                    <li><strong>主色调：</strong>#3b82f6（蓝色）- 用于主要按钮、链接、强调元素</li>
+                    <li><strong>成功色：</strong>#22c55e（绿色）- 用于正常状态、成功提示</li>
+                    <li><strong>警告色：</strong>#f59e0b（橙色）- 用于警告状态、需要注意的元素</li>
+                    <li><strong>危险色：</strong>#ef4444（红色）- 用于错误状态、严重告警</li>
+                    <li><strong>背景色：</strong>#f8fafc（浅灰）- 用于卡片、容器背景</li>
+                    <li><strong>文字色：</strong>#1e293b（深蓝灰）- 用于标题、主要文字</li>
+                    <li><strong>辅助文字色：</strong>#64748b（灰色）- 用于次要文字、提示信息</li>
+                </ul>
+                
+                <div class="subsection-title">5.2 字体规范</div>
+                <ul>
+                    <li><strong>页面标题：</strong>26px，600字重</li>
+                    <li><strong>模块标题：</strong>20px，600字重</li>
+                    <li><strong>子模块标题：</strong>16px，600字重</li>
+                    <li><strong>卡片标题：</strong>15px，600字重</li>
+                    <li><strong>正文：</strong>14px，400字重</li>
+                    <li><strong>小字：</strong>13px，400字重</li>
+                    <li><strong>按钮文字：</strong>13px，500字重</li>
+                </ul>
+                
+                <div class="subsection-title">5.3 组件规范</div>
+                <ul>
+                    <li><strong>卡片：</strong>圆角8px，阴影0 2px 12px rgba(0,0,0,0.08)，内边距20px</li>
+                    <li><strong>按钮：</strong>圆角6px，内边距8px 16px，hover状态背景加深10%</li>
+                    <li><strong>输入框：</strong>圆角6px，边框1px solid #e2e8f0，聚焦时边框变为主题色</li>
+                    <li><strong>选择框：</strong>圆角6px，最小宽度120px，内边距6px 12px</li>
+                    <li><strong>徽章：</strong>圆角20px，padding 4px 10px，字体12px</li>
+                    <li><strong>表格：</strong>表头背景#f8fafc，行高24px，边框底部1px solid #e2e8f0</li>
+                </ul>
+                
+                <div class="subsection-title">5.4 图标规范</div>
+                <ul>
+                    <li>使用 Font Awesome 图标库</li>
+                    <li>图标尺寸：14px-16px（与文字配合使用）</li>
+                    <li>图标颜色：与文字颜色一致或使用主题色</li>
+                </ul>
+            </div>
+            
+            <div id="deliverables" class="section">
+                <h2 class="section-title">六、交付物清单</h2>
+                
+                <table class="table">
+                    <tr><th>文件/模块</th><th>说明</th><th>状态</th></tr>
+                    <tr><td>index.html</td><td>平台概览页面 - 实时并发趋势、延迟趋势、错误码分布、长链接监控</td><td><span class="status status-approved">已通过</span></td></tr>
+                    <tr><td>alerts.html</td><td>告警管理页面 - 告警列表、告警统计、告警处理</td><td><span class="status status-approved">已通过</span></td></tr>
+                    <tr><td>business.html</td><td>业务监控页面 - 业务量分析、成功率统计</td><td><span class="status status-approved">已通过</span></td></tr>
+                    <tr><td>capacity.html</td><td>容量监控页面 - 资源使用监控、容量预警</td><td><span class="status status-approved">已通过</span></td></tr>
+                    <tr><td>logs.html</td><td>日志查询页面 - 日志检索、日志分析</td><td><span class="status status-approved">已通过</span></td></tr>
+                    <tr><td>scripts/main.js</td><td>主脚本文件 - 数据模拟、图表渲染、交互逻辑</td><td><span class="status status-approved">已通过</span></td></tr>
+                    <tr><td>styles/main.css</td><td>样式文件 - 全局样式、组件样式、响应式布局</td><td><span class="status status-approved">已通过</span></td></tr>
+                    <tr><td>requirements.html</td><td>需求文档 - 完整的需求规格说明</td><td><span class="status status-approved">已通过</span></td></tr>
+                </table>
+            </div>
+            
+            <div class="highlight">
+                <strong>评审状态：</strong>本项目原型已通过评审，各功能模块完整，UI设计符合规范，数据规格和时间轴要求明确，可作为正式开发的依据。
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>监控告警原型项目 - 需求规格说明书</p>
+            <p style="margin-top: 8px; opacity: 0.7;">© 2026 监控系统开发团队 | 版本: V1.1</p>
+        </div>
+    </div>
+</body>
+</html>

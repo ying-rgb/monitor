@@ -1,3 +1,78 @@
+// ==================== 环境切换 ====================
+let currentEnvironment = 'critical'; // critical: 重保环境, normal: 非重保环境, provincial: 省分环境
+
+window.switchEnvironment = function(env) {
+  currentEnvironment = env;
+  
+  // 更新标签状态
+  document.querySelectorAll('.env-tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('env-' + env).classList.add('active');
+  
+  // 根据环境类型获取不同的数据
+  // 重保环境：高优先级数据，更频繁的刷新
+  // 非重保环境：普通优先级数据
+  // 省分环境：省级区域数据
+  
+  // 刷新所有图表数据
+  refreshOverviewData();
+};
+
+function refreshOverviewData() {
+  // 根据当前环境刷新核心指标、并发趋势、延迟时间趋势、错误码分布等数据
+  updateQPSChart();
+  updateLatencyChart();
+  initErrorCodeCharts();
+  updateCoreMetrics();
+}
+
+function updateCoreMetrics() {
+  // 根据当前环境更新核心指标数据
+  const envData = getEnvironmentData();
+  
+  document.getElementById('metric-send-qps-client').textContent = envData.sendClient;
+  document.getElementById('metric-send-qps-channel').textContent = envData.sendChannel;
+}
+
+function getEnvironmentData() {
+  // 模拟不同环境的数据
+  const envData = {
+    critical: {
+      sendClient: '15,234',
+      sendChannel: '14,892',
+      successRateClient: '99.98%',
+      successRateChannel: '99.95%',
+      latency: '18',
+      queueClient: '456',
+      queueChannel: '321',
+      receiptClient: '14,123',
+      receiptChannel: '13,876'
+    },
+    normal: {
+      sendClient: '8,456',
+      sendChannel: '8,123',
+      successRateClient: '99.85%',
+      successRateChannel: '99.80%',
+      latency: '35',
+      queueClient: '1,234',
+      queueChannel: '987',
+      receiptClient: '7,890',
+      receiptChannel: '7,654'
+    },
+    provincial: {
+      sendClient: '3,210',
+      sendChannel: '3,089',
+      successRateClient: '99.90%',
+      successRateChannel: '99.85%',
+      latency: '45',
+      queueClient: '567',
+      queueChannel: '432',
+      receiptClient: '2,987',
+      receiptChannel: '2,876'
+    }
+  };
+  return envData[currentEnvironment];
+}
+
 // ==================== QPS趋势和延迟时间趋势图表 ====================
 let qpsChartInstance = null;
 let latencyChartInstance = null;
@@ -146,13 +221,13 @@ function updateLatencyChart() {
   
   let dataCount, intervalMinutes;
   switch (currentTimeRange) {
-    case '5m':
-      dataCount = 10;
-      intervalMinutes = 0.5;
-      break;
     case '1h':
       dataCount = 12;
       intervalMinutes = 5;
+      break;
+    case '8h':
+      dataCount = 16;
+      intervalMinutes = 30;
       break;
     case '24h':
     default:
@@ -172,11 +247,7 @@ function updateLatencyChart() {
       borderColor: '#3b82f6',
       textStyle: { color: 'white' }
     },
-    legend: {
-      data: ['客户延迟', '通道延迟'],
-      top: 5,
-      textStyle: { fontSize: 12 }
-    },
+    
     grid: {
       left: '3%',
       right: '4%',
@@ -206,20 +277,6 @@ function updateLatencyChart() {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: 'rgba(26, 115, 232, 0.3)' },
             { offset: 1, color: 'rgba(26, 115, 232, 0.05)' }
-          ])
-        }
-      },
-      {
-        name: '通道延迟',
-        type: 'line',
-        smooth: true,
-        data: latencyData.channel,
-        lineStyle: { color: '#ff9800', width: 2 },
-        itemStyle: { color: '#ff9800' },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(255, 152, 0, 0.3)' },
-            { offset: 1, color: 'rgba(255, 152, 0, 0.05)' }
           ])
         }
       }
@@ -541,31 +598,31 @@ function initTabSwitch() {
 // ==================== 长链接监控 ====================
 const customerLinksMap = {
   "cust_tech001": [
-    { clientIp: "192.168.1.12", nodeIp: "node-01.nyc", linkId: "LNK-a1b2c3", concurrent: 23, status: "正常", abnormalReason: null },
-    { clientIp: "192.168.1.45", nodeIp: "node-02.lon", linkId: "LNK-d4e5f6", concurrent: 87, status: "正常", abnormalReason: null },
-    { clientIp: "10.2.33.21", nodeIp: "node-01.nyc", linkId: "LNK-g7h8i9", concurrent: 0, status: "异常", abnormalReason: "心跳超时30s，连接假死" }
+    { customer: "科技有限公司", clientIp: "192.168.1.12", nodeIp: "node-01.nyc", nodeSeq: 1, platformCode: "P001", linkId: "LNK-a1b2c3", concurrent: 23, status: "正常", abnormalReason: null },
+    { customer: "科技有限公司", clientIp: "192.168.1.45", nodeIp: "node-02.lon", nodeSeq: 2, platformCode: "P002", linkId: "LNK-d4e5f6", concurrent: 87, status: "正常", abnormalReason: null },
+    { customer: "科技有限公司", clientIp: "10.2.33.21", nodeIp: "node-01.nyc", nodeSeq: 1, platformCode: "P001", linkId: "LNK-g7h8i9", concurrent: 0, status: "异常", abnormalReason: "心跳超时30s，连接假死" }
   ],
   "cust_finance02": [
-    { clientIp: "172.16.8.99", nodeIp: "node-03.fra", linkId: "LNK-j9k0l1", concurrent: 301, status: "正常", abnormalReason: null },
-    { clientIp: "172.16.8.100", nodeIp: "node-03.fra", linkId: "LNK-m2n3o4", concurrent: 311, status: "异常", abnormalReason: "带宽耗尽，发送队列堆积" },
-    { clientIp: "10.88.1.77", nodeIp: "node-04.sin", linkId: "LNK-p5q6r7", concurrent: 0, status: "异常", abnormalReason: "对端reset，连接已关闭" }
+    { customer: "金融服务集团", clientIp: "172.16.8.99", nodeIp: "node-03.fra", nodeSeq: 3, platformCode: "P003", linkId: "LNK-j9k0l1", concurrent: 301, status: "正常", abnormalReason: null },
+    { customer: "金融服务集团", clientIp: "172.16.8.100", nodeIp: "node-03.fra", nodeSeq: 3, platformCode: "P003", linkId: "LNK-m2n3o4", concurrent: 311, status: "异常", abnormalReason: "带宽耗尽，发送队列堆积" },
+    { customer: "金融服务集团", clientIp: "10.88.1.77", nodeIp: "node-04.sin", nodeSeq: 4, platformCode: "P004", linkId: "LNK-p5q6r7", concurrent: 0, status: "异常", abnormalReason: "对端reset，连接已关闭" }
   ],
   "cust_game03": [
-    { clientIp: "203.0.113.55", nodeIp: "node-05.tok", linkId: "LNK-s8t9u0", concurrent: 890, status: "正常", abnormalReason: null },
-    { clientIp: "203.0.113.66", nodeIp: "node-05.tok", linkId: "LNK-v1w2x3", concurrent: 1012, status: "异常", abnormalReason: "CPU过载，丢包严重" },
-    { clientIp: "198.51.100.22", nodeIp: "node-06.syd", linkId: "LNK-y4z5a6", concurrent: 0, status: "异常", abnormalReason: "TLS握手失败，证书过期" }
+    { customer: "游戏公司", clientIp: "203.0.113.55", nodeIp: "node-05.tok", nodeSeq: 5, platformCode: "P005", linkId: "LNK-s8t9u0", concurrent: 890, status: "正常", abnormalReason: null },
+    { customer: "游戏公司", clientIp: "203.0.113.66", nodeIp: "node-05.tok", nodeSeq: 5, platformCode: "P005", linkId: "LNK-v1w2x3", concurrent: 1012, status: "异常", abnormalReason: "CPU过载，丢包严重" },
+    { customer: "游戏公司", clientIp: "198.51.100.22", nodeIp: "node-06.syd", nodeSeq: 6, platformCode: "P006", linkId: "LNK-y4z5a6", concurrent: 0, status: "异常", abnormalReason: "TLS握手失败，证书过期" }
   ]
 };
 
 const channelLinksMap = {
   "ch_general_01": [
-    { nodeId: "node-01.nyc", linkId: "CH-LNK-001", concurrent: 210, status: "正常", abnormalReason: null },
-    { nodeId: "node-02.lon", linkId: "CH-LNK-002", concurrent: 135, status: "异常", abnormalReason: "连接数超限，拒绝服务" },
-    { nodeId: "node-01.nyc", linkId: "CH-LNK-003", concurrent: 0, status: "异常", abnormalReason: "网络分区，路由不可达" }
+    { nodeIp: "node-01.nyc", linkId: "CH-LNK-001", channelIp: "192.168.1.12", nodeSeq: 1, platformCode: "P001", concurrent: 210, status: "正常", abnormalReason: null },
+    { nodeIp: "node-02.lon", linkId: "CH-LNK-002", channelIp: "192.168.1.45", nodeSeq: 2, platformCode: "P002", concurrent: 135, status: "异常", abnormalReason: "连接数超限，拒绝服务" },
+    { nodeIp: "node-01.nyc", linkId: "CH-LNK-003", channelIp: "10.2.33.21", nodeSeq: 1, platformCode: "P001", rateLimit: 0, status: "异常", abnormalReason: "网络分区，路由不可达" }
   ],
   "ch_express_02": [
-    { nodeId: "node-03.fra", linkId: "CH-LNK-004", concurrent: 201, status: "正常", abnormalReason: null },
-    { nodeId: "node-04.sin", linkId: "CH-LNK-005", concurrent: 100, status: "异常", abnormalReason: "内存泄漏，链接不稳定" }
+    { nodeIp: "node-03.fra", linkId: "CH-LNK-004", channelIp: "172.16.8.99", nodeSeq: 3, platformCode: "P003", concurrent: 201, status: "正常", abnormalReason: null },
+    { nodeIp: "node-04.sin", linkId: "CH-LNK-005", channelIp: "172.16.8.100", nodeSeq: 4, platformCode: "P004", concurrent: 100, status: "异常", abnormalReason: "内存泄漏，链接不稳定" }
   ]
 };
 
@@ -628,13 +685,13 @@ function buildChannelNodeStats() {
   const nodeMap = new Map();
   for (const [channel, links] of Object.entries(channelLinksMap)) {
     links.forEach(link => {
-      const node = link.nodeId;
+      const node = link.nodeIp;
       if (!nodeMap.has(node)) nodeMap.set(node, { totalLinks: 0, totalConcurrent: 0, details: [], abnormalCount: 0 });
       const stat = nodeMap.get(node);
       stat.totalLinks += 1;
       stat.totalConcurrent += link.concurrent;
       if (link.status === "异常") stat.abnormalCount += 1;
-      stat.details.push({ channel, nodeId: link.nodeId, linkId: link.linkId, concurrent: link.concurrent, status: link.status, abnormalReason: link.abnormalReason });
+      stat.details.push({ channel, nodeIp: link.nodeIp, linkId: link.linkId, concurrent: link.concurrent, status: link.status, abnormalReason: link.abnormalReason });
     });
   }
   return nodeMap;
@@ -726,9 +783,10 @@ function renderCustomerLinks() {
     container.innerHTML = table;
   } else {
     const nodeStats = buildCustomerNodeStats();
-    let table = '<table class="data-table"><thead><tr><th>链接节点IP</th><th>已建立链接数</th><th>当前节点并发</th><th>异常链接数</th><th>操作</th></tr></thead><tbody>';
+    let table = '<table class="data-table"><thead><tr><th>节点编号</th><th>平台编号</th><th>节点IP</th><th>已建立链接数</th><th>当前节点并发</th><th>异常链接数</th><th>操作</th></tr></thead><tbody>';
+    let index = 1;
     for (let [nodeIp, stat] of nodeStats.entries()) {
-      table += '<tr><td><i class="fas fa-server"></i> ' + nodeIp + '</td><td>' + stat.totalLinks + '</td><td>' + stat.totalConcurrent + '</td><td><span class="badge badge-abnormal">' + stat.abnormalCount + '</span></td><td><button class="btn-icon" onclick="drillDownCustomerNode(\'' + nodeIp + '\')"><i class="fas fa-chart-line"></i> 详情</button></td></tr>';
+      table += '<tr><td>' + (index++) + '</td><td>P' + (index).toString().padStart(3, '0') + '</td><td><i class="fas fa-server"></i> ' + nodeIp + '</td><td>' + stat.totalLinks + '</td><td>' + stat.totalConcurrent + '</td><td><span class="badge badge-abnormal">' + stat.abnormalCount + '</span></td><td><button class="btn-icon" onclick="drillDownCustomerNode(\'' + nodeIp + '\')"><i class="fas fa-chart-line"></i> 详情</button></td></tr>';
     }
     table += '</tbody></table>';
     if (customerDrillData && customerDrillData.type === 'node') {
@@ -755,18 +813,19 @@ function renderChannelLinks() {
     if (channelDrillData && channelDrillData.type === 'channel') {
       table += renderChannelAccountDrill(channelDrillData.account);
     } else if (channelDrillData && channelDrillData.type === 'node') {
-      table += renderChannelNodeDrill(channelDrillData.nodeId);
+      table += renderChannelNodeDrill(channelDrillData.nodeIp);
     }
     container.innerHTML = table;
   } else {
     const nodeStats = buildChannelNodeStats();
-    let table = '<table class="data-table"><thead><tr><th>节点ID</th><th>总链接数</th><th>总并发数</th><th>异常链接数</th><th>操作</th></tr></thead><tbody>';
-    nodeStats.forEach((stat, nodeId) => {
-      table += '<tr><td><strong>' + nodeId + '</strong></td><td>' + stat.totalLinks + '</td><td>' + stat.totalConcurrent + '</td><td>' + stat.abnormalCount + '</td><td><button class="btn-icon" onclick="drillDownChannelNode(\'' + nodeId + '\')"><i class="fas fa-list-ul"></i> 详情</button></td></tr>';
+    let table = '<table class="data-table"><thead><tr><th>节点编号</th><th>平台编号</th><th>节点IP</th><th>已建立链接数</th><th>当前节点并发</th><th>异常链接数</th><th>操作</th></tr></thead><tbody>';
+    let index = 1;
+    nodeStats.forEach((stat, nodeIp) => {
+      table += '<tr><td>' + (index++) + '</td><td>P' + (index).toString().padStart(3, '0') + '</td><td><i class="fas fa-server"></i> ' + nodeIp + '</td><td>' + stat.totalLinks + '</td><td>' + stat.totalConcurrent + '</td><td><span class="badge badge-abnormal">' + stat.abnormalCount + '</span></td><td><button class="btn-icon" onclick="drillDownChannelNode(\'' + nodeIp + '\')"><i class="fas fa-list-ul"></i> 详情</button></td></tr>';
     });
     table += '</tbody></table>';
     if (channelDrillData && channelDrillData.type === 'node') {
-      table += renderChannelNodeDrill(channelDrillData.nodeId);
+      table += renderChannelNodeDrill(channelDrillData.nodeIp);
     }
     container.innerHTML = table;
   }
@@ -775,10 +834,21 @@ function renderChannelLinks() {
 function renderCustomerAccountDrill(account) {
   const links = customerLinksMap[account] || [];
   if (!links.length) return '<div class="drill-detail">无链接</div>';
-  let html = '<div class="drill-detail"><div class="drill-title"><span>客户 ' + account + ' 链接详情</span><button class="close-drill" onclick="closeCustomerDrill()">关闭</button></div>';
+  let html = '<div class="drill-detail"><div class="drill-title"><span>客户账号 ' + account + ' 链接详情</span><button class="close-drill" onclick="closeCustomerDrill()">关闭</button></div>';
   links.forEach(link => {
     const isNormal = link.status === "正常";
-    html += '<div class="link-entity"><div class="flex-between"><span><strong>链接ID:</strong> ' + link.linkId + '</span><span class="badge ' + (isNormal ? 'badge-normal' : 'badge-abnormal') + '">' + link.status + '</span></div><div class="small-text">客户IP: ' + link.clientIp + ' | 节点IP: ' + link.nodeIp + ' | 当前并发: ' + link.concurrent + '</div>';
+    html += '<div class="link-entity">';
+    html += '<div class="flex-between"><span><strong>链接ID:</strong> ' + link.linkId + '</span><span class="badge ' + (isNormal ? 'badge-normal' : 'badge-abnormal') + '">' + link.status + '</span></div>';
+    html += '<div class="small-text">';
+    html += '<span><strong>客户:</strong> ' + link.customer + '</span> | ';
+    html += '<span><strong>节点编号:</strong> ' + link.nodeSeq + '</span> | ';
+    html += '<span><strong>平台编号:</strong> ' + link.platformCode + '</span>';
+    html += '</div>';
+    html += '<div class="small-text">';
+    html += '<span><strong>客户IP:</strong> ' + link.clientIp + '</span> | ';
+    html += '<span><strong>节点IP:</strong> ' + link.nodeIp + '</span> | ';
+    html += '<span><strong>当前并发:</strong> ' + link.concurrent + '</span>';
+    html += '</div>';
     if (!isNormal && link.abnormalReason) {
       html += '<div class="reason-text"><i class="fas fa-exclamation-triangle"></i> 异常原因: ' + link.abnormalReason + '</div>';
     }
@@ -811,7 +881,7 @@ function renderChannelAccountDrill(account) {
   let html = '<div class="drill-detail"><div class="drill-title"><span>通道 ' + account + ' 链接明细</span><button class="close-drill" onclick="closeChannelDrill()">关闭</button></div>';
   links.forEach(link => {
     const isNormal = link.status === "正常";
-    html += '<div class="link-entity"><div><strong>链接ID:</strong> ' + link.linkId + ' | 节点ID: ' + link.nodeId + '</div><div>并发: ' + link.concurrent + ' | 状态: <span class="badge ' + (isNormal ? 'badge-normal' : 'badge-abnormal') + '">' + link.status + '</span></div>';
+    html += '<div class="link-entity"><div><strong>链接ID:</strong> ' + link.linkId + ' | 节点IP: ' + link.nodeIp + '</div><div>并发: ' + link.concurrent + ' | 状态: <span class="badge ' + (isNormal ? 'badge-normal' : 'badge-abnormal') + '">' + link.status + '</span></div>';
     if (!isNormal && link.abnormalReason) {
       html += '<div class="reason-text"><i class="fas fa-radar"></i> 异常原因: ' + link.abnormalReason + '</div>';
     }
@@ -821,18 +891,18 @@ function renderChannelAccountDrill(account) {
   return html;
 }
 
-function renderChannelNodeDrill(nodeId) {
+function renderChannelNodeDrill(nodeIp) {
   const nodeStats = buildChannelNodeStats();
-  const stat = nodeStats.get(nodeId);
+  const stat = nodeStats.get(nodeIp);
   if (!stat) return '<div class="drill-detail">无数据</div>';
-  let html = '<div class="drill-detail"><div class="drill-title"><span>节点 ' + nodeId + ' 通道链接</span><button class="close-drill" onclick="closeChannelDrill()">关闭</button></div>';
+  let html = '<div class="drill-detail"><div class="drill-title"><span>节点 ' + nodeIp + ' 通道链接</span><button class="close-drill" onclick="closeChannelDrill()">关闭</button></div>';
   stat.details.forEach(d => {
     const isNormal = d.status === "正常";
     html += '<div class="link-entity"><div><strong>所属通道:</strong> ' + d.channel + ' | 链接ID: ' + d.linkId + '</div><div>并发: ' + d.concurrent + ' | 状态: <span class="badge ' + (isNormal ? 'badge-normal' : 'badge-abnormal') + '">' + d.status + '</span></div>';
     if (!isNormal && d.abnormalReason) {
       html += '<div class="reason-text"><i class="fas fa-skull-crosswalk"></i> ' + d.abnormalReason + '</div>';
     }
-    html += '<div><button class="btn-icon btn-danger" onclick="disconnectChannelNodeLinkWrapper(\'' + nodeId + '\',\'' + d.linkId + '\')"><i class="fas fa-unlink"></i> 断开</button><button class="btn-icon btn-success" onclick="prepareChannelNodeReconnect(\'' + nodeId + '\',\'' + d.linkId + '\')"><i class="fas fa-sync-alt"></i> 重连</button></div></div>';
+    html += '<div><button class="btn-icon btn-danger" onclick="disconnectChannelNodeLinkWrapper(\'' + nodeIp + '\',\'' + d.linkId + '\')"><i class="fas fa-unlink"></i> 断开</button><button class="btn-icon btn-success" onclick="prepareChannelNodeReconnect(\'' + nodeIp + '\',\'' + d.linkId + '\')"><i class="fas fa-sync-alt"></i> 重连</button></div></div>';
   });
   html += '</div>';
   return html;
@@ -845,7 +915,7 @@ window.drillDownCustomerAccount = function(account) {
   let html = `
     <div class="drill-detail">
       <div class="drill-title">
-        <span><i class="fas fa-user"></i> 客户账号: ${account}</span>
+         <span><i class="fas fa-user"></i> 客户: ${accInfo?.customer || '-' }  <span style="margin-left: 20px;">账号:</span> ${account}</span></span>
       </div>
       <div style="margin-bottom: 15px; padding: 10px; background: #f1f5f9; border-radius: 8px;">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
@@ -861,8 +931,10 @@ window.drillDownCustomerAccount = function(account) {
     html += `
       <div class="link-entity">
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 13px;">
-          <div><strong>客户端IP:</strong> ${link.clientIp}</div>
+          <div><strong>客户IP:</strong> ${link.clientIp}</div>
           <div><strong>节点IP:</strong> ${link.nodeIp}</div>
+          <div><strong>节点编号:</strong> ${link.nodeSeq}</div>
+          <div><strong>平台编号:</strong> ${link.platformCode}</div>
           <div><strong>链接ID:</strong> ${link.linkId}</div>
           <div><strong>并发数:</strong> ${link.concurrent}</div>
         </div>
@@ -879,10 +951,25 @@ window.drillDownCustomerAccount = function(account) {
 };
 
 window.drillDownCustomerNode = function(nodeIp) {
+  // 创建节点IP到节点编号和平台编号的映射
+  const nodeInfoMap = {};
+  for (const [account, links] of Object.entries(customerLinksMap)) {
+    links.forEach(link => {
+      if (!nodeInfoMap[link.nodeIp]) {
+        nodeInfoMap[link.nodeIp] = {
+          nodeSeq: link.nodeSeq,
+          platformCode: link.platformCode
+        };
+      }
+    });
+  }
+  
+  const nodeInfo = nodeInfoMap[nodeIp] || { nodeSeq: '-', platformCode: '-' };
+  
   let html = `
     <div class="drill-detail">
       <div class="drill-title">
-        <span><i class="fas fa-server"></i> 节点: ${nodeIp}</span>
+        <span><i class="fas fa-server"></i> 节点Ip: ${nodeIp}  <span style="margin-left: 20px;">节点编号:</span> ${nodeInfo.nodeSeq}  <span style="margin-left: 20px;">平台编号:</span> ${nodeInfo.platformCode}</span>
       </div>
       <h4 style="margin-bottom: 12px; font-size: 14px;">该节点上的客户链接</h4>
   `;
@@ -897,7 +984,7 @@ window.drillDownCustomerNode = function(nodeIp) {
         html += `
           <div class="link-entity">
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 13px;">
-              <div><strong>客户端IP:</strong> ${link.clientIp}</div>
+              <div><strong>客户IP:</strong> ${link.clientIp}</div>
               <div><strong>链接ID:</strong> ${link.linkId}</div>
               <div><strong>并发数:</strong> ${link.concurrent}</div>
             </div>
@@ -926,7 +1013,7 @@ window.drillDownChannelAccount = function(account) {
   let html = `
     <div class="drill-detail">
       <div class="drill-title">
-        <span><i class="fas fa-network-wired"></i> 通道账号: ${account}</span>
+        <span><i class="fas fa-network-wired"></i><span style="margin: 20px;">通道商：${accInfo.channelProvider} </span> 通道账号: ${account}</span>
       </div>
       <div style="margin-bottom: 15px; padding: 10px; background: #f1f5f9; border-radius: 8px;">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
@@ -942,7 +1029,10 @@ window.drillDownChannelAccount = function(account) {
     html += `
       <div class="link-entity">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 13px;">
-          <div><strong>节点ID:</strong> ${link.nodeId}</div>
+          <div><strong>节点IP:</strong> ${link.nodeIp}</div>
+          <div><strong>节点编号:</strong> ${link.nodeSeq}</div>
+          <div><strong>平台编号:</strong> ${link.platformCode}</div>
+          <div><strong>通道IP:</strong> ${link.channelIp}</div>
           <div><strong>链接ID:</strong> ${link.linkId}</div>
           <div><strong>并发数:</strong> ${link.concurrent}</div>
         </div>
@@ -958,18 +1048,34 @@ window.drillDownChannelAccount = function(account) {
   showDrillModal(html);
 };
 
-window.drillDownChannelNode = function(nodeId) {
+window.drillDownChannelNode = function(nodeIp) {
+
+  // 创建节点IP到节点编号和平台编号的映射
+  const nodeInfoMap = {};
+  for (const [account, links] of Object.entries(customerLinksMap)) {
+    links.forEach(link => {
+      if (!nodeInfoMap[link.nodeIp]) {
+        nodeInfoMap[link.nodeIp] = {
+          nodeSeq: link.nodeSeq,
+          platformCode: link.platformCode
+        };
+      }
+    });
+  }
+  
+  const nodeInfo = nodeInfoMap[nodeIp] || { nodeSeq: '-', platformCode: '-' };
+  
   let html = `
     <div class="drill-detail">
       <div class="drill-title">
-        <span><i class="fas fa-server"></i> 节点: ${nodeId}</span>
+        <span><i class="fas fa-server"></i> 节点Ip: ${nodeIp}  <span style="margin-left: 20px;">节点编号:</span> ${nodeInfo.nodeSeq}  <span style="margin-left: 20px;">平台编号:</span> ${nodeInfo.platformCode}</span>
       </div>
       <h4 style="margin-bottom: 12px; font-size: 14px;">该节点上的通道链接</h4>
   `;
   
   let found = false;
   for (const [account, links] of Object.entries(channelLinksMap)) {
-    const nodeLinks = links.filter(l => l.nodeId === nodeId);
+    const nodeLinks = links.filter(l => l.nodeIp === nodeIp);
     if (nodeLinks.length > 0) {
       found = true;
       html += `<div style="margin-bottom: 15px;"><strong>通道: ${account}</strong></div>`;
@@ -977,6 +1083,7 @@ window.drillDownChannelNode = function(nodeId) {
         html += `
           <div class="link-entity">
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 13px;">
+              <div><strong>通道IP:</strong> ${link.channelIp}</div>
               <div><strong>链接ID:</strong> ${link.linkId}</div>
               <div><strong>并发数:</strong> ${link.concurrent}</div>
             </div>
@@ -1063,7 +1170,7 @@ function prepareChannelReconnect(account, linkId) {
   }
 }
 
-function disconnectChannelNodeLinkWrapper(nodeId, linkId) {
+function disconnectChannelNodeLinkWrapper(nodeIp, linkId) {
   for (let links of Object.values(channelLinksMap)) {
     const link = links.find(l => l.linkId === linkId);
     if (link) {
@@ -1077,14 +1184,14 @@ function disconnectChannelNodeLinkWrapper(nodeId, linkId) {
   }
 }
 
-function prepareChannelNodeReconnect(nodeId, linkId) {
+function prepareChannelNodeReconnect(nodeIp, linkId) {
   for (let links of Object.values(channelLinksMap)) {
     const link = links.find(l => l.linkId === linkId);
     if (link) {
       link.status = "正常";
       link.concurrent = Math.floor(Math.random() * 110) + 30;
       link.abnormalReason = null;
-      alert("通道节点重连 " + linkId + " 至 " + nodeId);
+      alert("通道节点重连 " + linkId + " 至 " + nodeIp);
       renderLongLinkContent();
       break;
     }
@@ -2388,10 +2495,10 @@ function updateTopologyChart() {
           if (edgeData) {
             if (edgeData.type === 'account2platform') {
               const statusText = edgeData.status === 'normal' ? '正常' : '异常';
-              return `🔗 账号→平台链接 #${edgeData.seq}<br/>发送账号: ${edgeData.senderAccountName}<br/>状态: ${statusText}<br/>并发: ${edgeData.currentConcurrent}<br/>点击查看完整详情`;
+              return `🔗 账号→平台链接 <br/>发送账号: ${edgeData.senderAccountName}<br/>状态: ${statusText}<br/>并发: ${edgeData.currentConcurrent}<br/>点击查看完整详情`;
             } else if (edgeData.type === 'platform2channel') {
               const statusText = edgeData.status === 'normal' ? '正常' : '异常';
-              return `🔗 平台→通道链接 #${edgeData.seq}<br/>通道: ${edgeData.channelName}<br/>状态: ${statusText}<br/>并发: ${edgeData.currentConcurrent}<br/>点击查看详情`;
+              return `🔗 平台→通道链接<br/>通道: ${edgeData.channelName}<br/>状态: ${statusText}<br/>并发: ${edgeData.currentConcurrent}<br/>点击查看详情`;
             }
           }
           if (params.data.lineStyle?.type === 'dashed') return '归属关系（虚线）';
@@ -3124,10 +3231,10 @@ function updateChannelTopologyChart() {
           if (edgeData) {
             if (edgeData.type === 'account2platform') {
               const statusText = edgeData.status === 'normal' ? '正常' : '异常';
-              return `🔗 账号→平台链接 #${edgeData.seq}<br/>发送账号: ${edgeData.senderAccountName}<br/>状态: ${statusText}<br/>并发: ${edgeData.currentConcurrent}<br/>点击查看详情`;
+              return `🔗 账号→平台链接 <br/>发送账号: ${edgeData.senderAccountName}<br/>状态: ${statusText}<br/>并发: ${edgeData.currentConcurrent}<br/>点击查看详情`;
             } else if (edgeData.type === 'platform2channel') {
               const statusText = edgeData.status === 'normal' ? '正常' : '异常';
-              return `🔗 平台→通道链接 #${edgeData.seq}<br/>通道: ${edgeData.channelName}<br/>状态: ${statusText}<br/>并发: ${edgeData.currentConcurrent}<br/>点击查看详情`;
+              return `🔗 平台→通道链接 <br/>通道: ${edgeData.channelName}<br/>状态: ${statusText}<br/>并发: ${edgeData.currentConcurrent}<br/>点击查看详情`;
             }
           }
           if (params.data.lineStyle?.type === 'dashed') return '归属关系（虚线）';
@@ -3199,11 +3306,12 @@ function showChannelDetail(linkData) {
       <div class="detail-row"><div class="detail-label">客户</div><div class="detail-value">${linkData.customerName}</div></div>
       <div class="detail-row"><div class="detail-label">发送账号</div><div class="detail-value">${linkData.senderAccountName}</div></div>
       <div class="detail-row"><div class="detail-label">客户IP</div><div class="detail-value">${linkData.clientIp}</div></div>
-      <div class="detail-row"><div class="detail-label">链接节点IP</div><div class="detail-value">${linkData.linkNodeIp}</div></div>
+      <div class="detail-row"><div class="detail-label">节点IP</div><div class="detail-value">${linkData.linkNodeIp}</div></div>
+      <div class="detail-row"><div class="detail-label">节点编号</div><div class="detail-value">${linkData.nodeSeq}</div></div>
+      <div class="detail-row"><div class="detail-label">平台编号</div><div class="detail-value">${linkData.platformCode}</div></div>
       <div class="detail-row"><div class="detail-label">链接ID</div><div class="detail-value">${linkData.linkId}</div></div>
       <div class="detail-row"><div class="detail-label">当前并发</div><div class="detail-value">${linkData.currentConcurrent}</div></div>
       <div class="detail-row"><div class="detail-label">链接状态</div><div class="detail-value"><span class="status-badge ${statusClass}">${statusText}</span></div></div>
-      <div class="detail-row"><div class="detail-label">链路序号</div><div class="detail-value">第 ${linkData.seq} 条连接</div></div>
     `;
   } else if (linkData.type === 'platform2channel') {
     const statusText = linkData.status === 'normal' ? '正常 ✓' : '异常 ✗';
@@ -3212,11 +3320,13 @@ function showChannelDetail(linkData) {
       <div class="detail-row"><div class="detail-label">通道商</div><div class="detail-value">${linkData.vendorName || '-'}</div></div>
       <div class="detail-row"><div class="detail-label">通道名称</div><div class="detail-value">${linkData.channelName}</div></div>
       <div class="detail-row"><div class="detail-label">通道账号</div><div class="detail-value">${linkData.channelAccount}</div></div>
-      <div class="detail-row"><div class="detail-label">链接节点IP</div><div class="detail-value">${linkData.linkNodeIp}</div></div>
+      <div class="detail-row"><div class="detail-label">通道IP</div><div class="detail-value">${linkData.channelIp}</div></div>
+      <div class="detail-row"><div class="detail-label">节点IP</div><div class="detail-value">${linkData.linkNodeIp}</div></div>
+      <div class="detail-row"><div class="detail-label">节点编号</div><div class="detail-value">${linkData.nodeSeq}</div></div>
+      <div class="detail-row"><div class="detail-label">平台编号</div><div class="detail-value">${linkData.platformCode}</div></div>
       <div class="detail-row"><div class="detail-label">链接ID</div><div class="detail-value">${linkData.linkId}</div></div>
       <div class="detail-row"><div class="detail-label">当前并发</div><div class="detail-value">${linkData.currentConcurrent}</div></div>
       <div class="detail-row"><div class="detail-label">链接状态</div><div class="detail-value"><span class="status-badge ${statusClass}">${statusText}</span></div></div>
-      <div class="detail-row"><div class="detail-label">链路序号</div><div class="detail-value">第 ${linkData.seq} 条连接</div></div>
     `;
   } else {
     html = `<div style="padding:12px;text-align:center;">无法获取链接详情</div>`;
